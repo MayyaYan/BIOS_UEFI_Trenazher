@@ -1,0 +1,639 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Тренажёр «Параметры BIOS и UEFI»</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#f3f5fa;--panel:#fff;--ink:#1d2333;--muted:#5d667a;--line:#e1e5ee;--acc:#4f46e5;--acc2:#0d9488;--acc3:#d97706;--acc4:#e11d48;--soft:#eef0ff;--soft2:#e3f5f2;--soft3:#fdf2e2;--soft4:#fde7eb;--ok:#16a34a;--bad:#e11d48;--shadow:0 10px 30px rgba(29,35,51,.07)}
+[data-theme=dark]{--bg:#0e1320;--panel:#161d2d;--ink:#e6eaf4;--muted:#9aa3b9;--line:#283147;--soft:#23264a;--soft2:#12312d;--soft3:#3a2b13;--soft4:#3e1a24;--shadow:none}
+html,body{height:100%}
+body{font-family:"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;background:var(--bg);color:var(--ink);display:flex;flex-direction:column;overflow:hidden;font-size:22pt}
+header{height:60px;display:flex;align-items:center;gap:12px;padding:0 16px;background:var(--panel);border-bottom:1px solid var(--line);flex-shrink:0}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700}
+.logo{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#e11d48,#d97706);display:grid;place-items:center;color:#fff;font-size:26pt}
+.sp{flex:1}
+.who{font-size:22pt;color:var(--muted);text-align:right;line-height:1.3}
+.pill{padding:7px 12px;border-radius:999px;font-weight:700;font-size:22pt;background:var(--soft);color:var(--acc);white-space:nowrap}
+.timer{font-family:Consolas,Menlo,monospace;font-size:22pt;background:#1f2636;color:#a7f3d0;padding:7px 12px;border-radius:10px;min-width:92px;text-align:center}
+.timer.warn{background:#d97706;color:#fff}.timer.crit{background:#e11d48;color:#fff;animation:bl 1s infinite}
+@keyframes bl{50%{opacity:.6}}
+.hbtn{border:1px solid var(--line);background:var(--panel);color:var(--ink);padding:7px 10px;border-radius:10px;cursor:pointer;font:inherit}
+.wrap{flex:1;display:grid;grid-template-columns:260px 1fr;min-height:0}
+aside{background:var(--panel);border-right:1px solid var(--line);overflow:auto;padding:14px 10px}
+.st{display:flex;gap:10px;align-items:center;width:100%;text-align:left;border:0;background:none;color:var(--ink);padding:10px;border-radius:12px;cursor:pointer;font:inherit;margin-bottom:4px}
+.st:hover:not(:disabled){background:var(--bg)}.st.on{background:var(--soft)}.st:disabled{opacity:.45;cursor:not-allowed}
+.st .n{width:32px;height:32px;border-radius:10px;background:var(--bg);border:1px solid var(--line);display:grid;place-items:center;font-weight:700;flex-shrink:0}
+.st.on .n{background:var(--acc);color:#fff;border-color:var(--acc)}.st.done .n{background:var(--ok);color:#fff;border-color:var(--ok)}
+.st small{display:block;color:var(--muted);font-size:22pt}
+.st b{font-size:22pt;font-weight:600}
+.plan{margin-top:14px;padding:12px;border-radius:12px;background:var(--bg);font-size:22pt;color:var(--muted);line-height:1.5}
+main{overflow:auto;padding:22px 18px 40px}
+.card{max-width:1120px;margin:0 auto 18px;background:var(--panel);border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow);padding:24px 28px}
+.kicker{font-size:22pt;letter-spacing:.12em;text-transform:uppercase;color:var(--acc);font-weight:700;margin-bottom:6px}
+h1{font-size:34pt;margin-bottom:12px;line-height:1.2}h2{font-size:26pt;margin:6px 0 10px}h3{font-size:22pt;margin:12px 0 6px}
+p{line-height:1.6;margin-bottom:8px}
+.task{background:var(--soft);border-left:4px solid var(--acc);border-radius:12px;padding:12px 16px;margin:10px 0 16px;line-height:1.6}
+.hint{background:var(--soft3);border-left:4px solid var(--acc3);border-radius:12px;padding:10px 14px;margin:10px 0;font-size:22pt;line-height:1.55}
+ul.l{list-style:none;margin:6px 0}ul.l li{padding-left:20px;position:relative;margin:6px 0;line-height:1.5}ul.l li:before{content:"";position:absolute;left:3px;top:8px;width:8px;height:8px;border-radius:3px;background:var(--acc)}
+.btn{border:0;background:var(--acc);color:#fff;padding:11px 18px;border-radius:12px;font:inherit;font-weight:600;cursor:pointer}
+.btn:hover:not(:disabled){filter:brightness(1.1)}.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.g{background:var(--acc2)}.btn.o{background:transparent;color:var(--acc);border:1px solid var(--acc)}.btn.r{background:var(--acc4)}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:14px}
+.res{padding:10px 14px;border-radius:12px;font-weight:600;display:inline-block}
+.res.ok{background:#dcfce7;color:#166534}.res.mid{background:#fef3c7;color:#92400e}.res.bad{background:#ffe4e6;color:#9f1239}
+[data-theme=dark] .res.ok{background:#14532d;color:#bbf7d0}[data-theme=dark] .res.mid{background:#78350f;color:#fde68a}[data-theme=dark] .res.bad{background:#881337;color:#fecdd3}
+input[type=text],input[type=number],select{padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font:inherit}
+input.okf{border-color:var(--ok);background:#dcfce7;color:#166534}input.badf{border-color:var(--bad);background:#ffe4e6;color:#9f1239}
+table{border-collapse:collapse;width:100%}
+.tw{overflow-x:auto}
+.cls th,.cls td{padding:10px 8px;border-bottom:1px solid var(--line);text-align:left;vertical-align:middle}
+.cls th{font-size:22pt;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.05em}
+.os{display:flex;align-items:center;gap:10px;min-width:180px}.os svg{flex-shrink:0}.os small{display:block;color:var(--muted);font-size:22pt}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--bg)}
+.seg button{border:0;background:none;color:var(--ink);padding:8px 9px;font:inherit;font-size:22pt;cursor:pointer;white-space:nowrap}
+.seg button+button{border-left:1px solid var(--line)}
+.seg button.on{background:var(--acc);color:#fff}
+.seg.ok{outline:2px solid var(--ok)}.seg.bad{outline:2px solid var(--bad)}
+.seg button.right{box-shadow:inset 0 -3px 0 var(--ok)}
+.expl td{background:var(--bg);font-size:22pt;color:var(--muted);padding:8px 12px}
+.ptable td,.ptable th{border:1px solid var(--line);padding:8px 12px;text-align:center}.ptable th{background:var(--soft)}
+.brushes{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:10px 0}
+.brush{width:46px;height:42px;border-radius:10px;border:2px solid transparent;color:#fff;font-weight:800;font-size:22pt;cursor:pointer}
+.brush.on{border-color:var(--ink);transform:scale(1.08)}
+.pA{background:#4f46e5!important;color:#fff}.pB{background:#0d9488!important;color:#fff}.pC{background:#d97706!important;color:#fff}
+.gantt{display:grid;grid-template-columns:repeat(12,1fr);gap:4px;margin-top:6px;user-select:none;touch-action:none}
+.cell{height:46px;border-radius:8px;background:var(--bg);border:1px dashed var(--line);display:grid;place-items:center;font-weight:800;cursor:pointer;font-size:22pt;position:relative}
+.cell:hover{border-color:var(--acc)}
+.cell.ok:after,.cell.bad:after{position:absolute;top:-7px;right:-5px;width:16px;height:16px;border-radius:50%;font-size:22pt;display:grid;place-items:center;color:#fff}
+.cell.ok:after{content:"✓";background:var(--ok)}.cell.bad:after{content:"✗";background:var(--bad)}
+.axis{display:grid;grid-template-columns:repeat(12,1fr);gap:4px;font-size:22pt;color:var(--muted);margin-top:3px;position:relative}
+.axis span{transform:translateX(-50%);width:max-content}.axis .end{position:absolute;right:0;transform:translateX(50%)}
+.cnts{display:flex;gap:10px;font-size:22pt;margin-top:6px;flex-wrap:wrap}.cnts span{padding:3px 9px;border-radius:999px;background:var(--bg)}
+.cnts .full{background:#dcfce7;color:#166534}.cnts .over{background:#ffe4e6;color:#9f1239}
+.gbox{border:1px solid var(--line);border-radius:14px;padding:14px;margin:12px 0}
+.correct .cell{animation:pop .35s both;cursor:default;border-style:solid}
+@keyframes pop{from{opacity:0;transform:scale(.6)}to{opacity:1;transform:none}}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.term{background:#0b111c;border-radius:14px;padding:14px;font-family:Consolas,Menlo,"Courier New",monospace;font-size:22pt;color:#d1fae5;height:470px;overflow:auto;cursor:text;line-height:1.5}
+.term pre{white-space:pre-wrap;word-break:break-word;font:inherit;margin:0}
+.term .pr{color:#86efac;font-weight:700}.term .er{color:#fca5a5}.term .inf{color:#93c5fd}
+.term .il{display:flex;gap:8px}.term input{flex:1;background:none;border:0;outline:0;color:#fff;font:inherit;padding:0}
+.obj{display:flex;gap:10px;padding:9px 10px;border-radius:10px;margin:5px 0;background:var(--bg);font-size:22pt;line-height:1.4;align-items:flex-start}
+.obj i{font-style:normal;width:22px;height:22px;border-radius:50%;border:2px solid var(--line);flex-shrink:0;display:grid;place-items:center;font-size:22pt}
+.obj.done{background:#dcfce7;color:#166534}.obj.done i{background:var(--ok);border-color:var(--ok);color:#fff}
+[data-theme=dark] .obj.done{background:#14532d;color:#bbf7d0}
+details{background:var(--bg);border-radius:10px;padding:8px 12px;margin:8px 0;font-size:22pt}summary{cursor:pointer;font-weight:600}
+details code,p code,li code{background:var(--soft);padding:1px 5px;border-radius:5px;font-family:Consolas,monospace;font-size:22pt}
+.chk{display:flex;gap:10px;align-items:flex-start;padding:8px 10px;border-radius:10px;border:1px solid var(--line);margin:6px 0;cursor:pointer;line-height:1.4}
+.chk input{margin-top:3px;width:17px;height:17px;flex-shrink:0}
+.chk.ok{border-color:var(--ok);background:#dcfce7;color:#166534}.chk.bad{border-color:var(--bad);background:#ffe4e6;color:#9f1239}.chk.miss{border-color:var(--ok);border-style:dashed}
+.case{border:1px solid var(--line);border-radius:16px;padding:16px 18px;margin:14px 0;background:var(--bg)}
+.case h3{margin-top:0;display:flex;gap:10px;align-items:center}.case h3 span{width:28px;height:28px;border-radius:8px;background:var(--acc);color:#fff;display:grid;place-items:center;font-size:22pt}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0}
+.opt{border:1px solid var(--line);background:var(--panel);color:var(--ink);padding:9px 12px;border-radius:10px;cursor:pointer;font:inherit;font-size:22pt;text-align:left}
+.opt:hover:not(:disabled){border-color:var(--acc)}.opt.on{background:var(--acc);color:#fff;border-color:var(--acc)}
+.opt.ok{background:var(--ok)!important;color:#fff;border-color:var(--ok)}.opt.bad{background:var(--bad)!important;color:#fff;border-color:var(--bad)}.opt.miss{border:2px dashed var(--ok)}
+.fb{font-size:22pt;margin-top:8px;padding:10px 12px;border-radius:10px;background:var(--soft2);line-height:1.5}
+.q{border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin:12px 0}
+.q p{font-weight:600}
+.score-big{font-size:44pt;font-weight:800;line-height:1}
+.grade{width:110px;height:110px;border-radius:24px;display:grid;place-items:center;font-size:44pt;font-weight:800;color:#fff}
+.rt td,.rt th{padding:10px 12px;border-bottom:1px solid var(--line);text-align:left}.rt th{background:var(--soft)}
+.bar{height:8px;border-radius:4px;background:var(--line);overflow:hidden;min-width:100px}.bar i{display:block;height:100%;background:var(--acc2)}
+.modal{position:fixed;inset:0;background:rgba(10,15,30,.5);display:none;place-items:center;z-index:50;padding:16px}
+.modal.on{display:grid}.modal .card{max-width:480px;text-align:center}
+.intro-grid{display:grid;grid-template-columns:1.2fr 1fr;gap:24px;align-items:start}
+.form{display:grid;gap:10px;background:var(--bg);border-radius:16px;padding:18px}
+.form label{font-size:22pt;color:var(--muted);font-weight:600}
+@media(max-width:900px){.wrap{grid-template-columns:1fr;grid-template-rows:auto 1fr}aside{display:flex;overflow-x:auto;border-right:0;border-bottom:1px solid var(--line);padding:8px}.st{min-width:190px;margin:0 4px 0 0}.plan,.who{display:none}.grid2,.intro-grid,.opts{grid-template-columns:1fr}.card{padding:18px 14px}h1{font-size:26pt}.cell{height:38px;font-size:22pt}.brand span{display:none}}
+@media print{header,aside,.noprint,.row{display:none!important}.wrap{display:block}main{overflow:visible}body{overflow:visible;display:block}.card{box-shadow:none;border:0}}
+
+/* ===== крупный шрифт: не менее 22 pt ===== */
+body{font-size:22pt}
+header{height:auto;min-height:80px;padding:10px 20px;flex-wrap:wrap}
+.logo{width:52px;height:52px}
+.wrap{grid-template-columns:1fr;grid-template-rows:auto 1fr}
+aside{display:flex;overflow-x:auto;border-right:0;border-bottom:1px solid var(--line);padding:10px}
+.st{flex:0 0 400px;min-width:0;margin:0 6px 0 0}.st div{min-width:0}
+.gantt,.axis,.cnts{clear:both}.st .n{width:48px;height:48px}
+.plan{display:none}
+.card{max-width:1500px;padding:30px 36px}
+h1{font-size:34pt}h2{font-size:28pt;margin:14px 0 12px}h3{font-size:26pt}
+.btn{padding:14px 24px}
+input[type=text],input[type=number],select{padding:12px 14px;font-size:22pt}
+input[type=text][data-n]{width:180px!important}
+ul.l li{padding-left:30px}ul.l li:before{width:12px;height:12px;top:.55em}
+.intro-grid,.grid2{grid-template-columns:1fr}
+.cls tr:first-child{display:none}
+.cls tr{display:flex;flex-wrap:wrap;gap:12px;align-items:center;padding:14px 0;border-bottom:1px solid var(--line)}
+.cls td{border:0;padding:0}.cls td:first-child{flex-basis:100%}
+.cls tr.expl{padding:0;border:0}.cls tr.expl td{padding:12px 16px;border-radius:12px}
+.os svg{width:56px;height:56px}
+.seg button{padding:10px 16px}
+.brush{width:72px;height:64px}
+.cell{height:72px}
+.term{height:620px;padding:18px}
+.term .il{flex-wrap:wrap}
+.obj i{width:36px;height:36px}
+.chk input{width:28px;height:28px;margin-top:6px}
+.opts{grid-template-columns:1fr 1fr}
+.case h3 span{width:44px;height:44px}
+.score-big{font-size:60pt}.grade{width:150px;height:150px;font-size:60pt}
+.modal .card{max-width:760px}
+.ptable td,.ptable th{padding:12px 16px}
+@media(max-width:900px){.opts{grid-template-columns:1fr}.st{min-width:280px}h1{font-size:30pt}}
+
+/* ===== BIOS / UEFI эмуляторы ===== */
+ol.tl{margin:8px 0 8px 1.4em;line-height:1.5}ol.tl li{margin:6px 0}
+.beepvis{font-size:26pt;letter-spacing:4px;color:var(--acc)}
+.postmsg{background:#000;color:#e5e7eb;font-family:Consolas,monospace;font-size:22pt;padding:14px 16px;border-radius:10px;white-space:pre-wrap;margin-bottom:12px}
+#bwrap,#uwrap{outline:none;border-radius:12px;margin:14px 0}
+#bwrap:focus .bios,#bwrap:focus .post{box-shadow:0 0 0 5px #f59e0b}
+.bios{background:#b5b9c2;color:#1e3a8a;font-family:Consolas,"Lucida Console","Courier New",monospace;font-size:22pt;border-radius:8px;overflow:hidden;position:relative;user-select:none;border:4px solid #1f2636}
+.bios .bt{background:#1e3a8a;color:#fff;text-align:center;padding:6px}
+.bios .btabs{background:#1e3a8a;display:flex;flex-wrap:wrap;gap:4px;padding:0 10px}
+.bios .btabs span{color:#fff;padding:2px 14px}.bios .btabs span.on{background:#b5b9c2;color:#1e3a8a}
+.bios .bbody{display:flex;min-height:620px}
+.bios .bleft{flex:2.2;padding:10px 6px;border-right:3px solid #1e3a8a;min-width:0}
+.bios .bright{flex:1;padding:12px 16px;color:#1e293b;line-height:1.35;min-width:0}
+.bios .row{display:flex;justify-content:space-between;gap:16px;padding:1px 10px;margin:0}
+.bios .row .v{white-space:nowrap;color:#0f172a}
+.bios .row.ro,.bios .row.ro .v{color:#475569}
+.bios .row.h{font-weight:700}
+.bios .row.sel{background:#1e3a8a;color:#fff}.bios .row.sel .v{color:#fff}
+.bios .bkeys{background:#1e3a8a;color:#fff;padding:8px 12px;line-height:1.35}
+.bios .bpop{position:absolute;inset:0;display:grid;place-items:center;background:rgba(15,23,42,.35)}
+.bios .bpop .box{background:#1e3a8a;color:#fff;border:4px double #fff;min-width:520px;max-width:92%;padding-bottom:8px}
+.bios .bpop .ttl{background:#b5b9c2;color:#1e3a8a;text-align:center;padding:4px 12px;margin-bottom:6px}
+.bios .bpop .it{padding:3px 18px}.bios .bpop .it.on{background:#b5b9c2;color:#1e3a8a}
+.bios .bpop .yn{display:flex;gap:30px;justify-content:center;padding:8px}.bios .bpop .yn span{padding:0 14px}.bios .bpop .yn span.on{background:#b5b9c2;color:#1e3a8a}
+.bios .bpop input{background:#0f172a;color:#fff;border:2px solid #fff;font:inherit;padding:4px 10px;width:100%;outline:none}
+.post{background:#000;color:#d1d5db;font-family:Consolas,monospace;font-size:22pt;min-height:640px;padding:24px;line-height:1.5;border-radius:8px;border:4px solid #1f2636}
+.post>div{opacity:0;animation:pin .2s forwards}@keyframes pin{to{opacity:1}}
+.post .er{color:#f87171}.post .ok{color:#4ade80}.post .dim{color:#9ca3af}.post .pk{color:#fde047;margin-top:20px}
+.vkeys{display:flex;flex-wrap:wrap;gap:8px}.vkeys .btn{padding:10px 16px;min-width:72px}
+.uefi{background:#0b1220;color:#e2e8f0;border-radius:14px;overflow:hidden;position:relative;font-size:22pt;border:3px solid #1e293b;min-height:640px;user-select:none}
+.u-top{display:flex;align-items:center;gap:16px;padding:10px 18px;background:#111c33;flex-wrap:wrap}
+.u-top .sp{flex:1}.u-mode{background:#0284c7;color:#fff;border-radius:8px;padding:2px 12px}
+.u-tabs{display:flex;flex-wrap:wrap;gap:4px;padding:8px 12px;background:#0f1a30;border-bottom:1px solid #1e293b}
+.u-tabs button{background:none;border:0;color:#94a3b8;font:inherit;padding:6px 14px;border-radius:8px;cursor:pointer}
+.u-tabs button.on{background:#0284c7;color:#fff}.u-tabs button:hover{color:#fff}
+.u-body{display:grid;grid-template-columns:1fr 380px;min-height:520px}
+.u-list{padding:12px 16px;min-width:0}
+.u-crumb{color:#38bdf8;cursor:pointer;margin-bottom:8px}
+.u-row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:8px 14px;border-radius:10px;cursor:pointer;margin:5px 0;background:#121d36;flex-wrap:wrap}
+.u-row:hover{background:#1b2a4d}.u-row.ro{cursor:default;background:none;padding:4px 14px}.u-row.ro:hover{background:none}
+.u-row.h{background:none;color:#38bdf8;font-weight:700;cursor:default;padding:6px 14px 0}
+.u-row.dis{opacity:.4;cursor:not-allowed}
+.u-row .v{background:#0b1220;border:1px solid #334155;border-radius:8px;padding:2px 12px;color:#38bdf8}
+.u-row.ro .v{border:0;background:none;color:#cbd5e1}
+.u-side{background:#0f1a30;padding:14px 16px;border-left:1px solid #1e293b}
+.u-side h4,.tile h4,.u-dlg h4{color:#38bdf8;margin-bottom:8px;font-size:22pt}
+.u-help{color:#cbd5e1;line-height:1.4}.u-hw{color:#e2e8f0;line-height:1.5}
+.u-bot{display:flex;gap:10px;flex-wrap:wrap;padding:10px 14px;background:#111c33;justify-content:flex-end}
+.u-btn{background:#1e293b;color:#e2e8f0;border:1px solid #334155;border-radius:10px;padding:8px 16px;font:inherit;cursor:pointer}
+.u-btn:hover{border-color:#38bdf8}.u-btn.pri{background:#f59e0b;color:#111;border-color:#f59e0b}
+.u-pop{position:absolute;inset:0;background:rgba(2,6,23,.7);display:grid;place-items:center;z-index:5;padding:16px}
+.u-dlg{background:#111c33;border:2px solid #38bdf8;border-radius:14px;padding:18px;min-width:min(620px,95%);max-width:95%;max-height:92%;overflow:auto}
+.u-opt{display:block;width:100%;text-align:left;background:#16213b;color:#e2e8f0;border:1px solid #334155;border-radius:10px;padding:8px 14px;margin:6px 0;font:inherit;cursor:pointer}
+.u-opt:hover{border-color:#38bdf8}.u-opt.on{background:#0284c7;border-color:#0284c7}
+.u-ez{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;padding:16px}
+.tile{background:#16213b;border-radius:14px;padding:14px 16px;line-height:1.45}.tile.wide{grid-column:1/-1}
+.u-brow{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid #1e293b;flex-wrap:wrap}
+.u-mini{background:#1e293b;color:#e2e8f0;border:1px solid #334155;border-radius:8px;padding:2px 12px;margin-left:6px;font:inherit;cursor:pointer}
+.u-boot{min-height:640px;display:grid;place-content:center;gap:20px;text-align:center}
+.u-logo{font-size:34pt;font-weight:800;color:#38bdf8}
+.u-spin{width:64px;height:64px;border-radius:50%;border:6px solid #1e293b;border-top-color:#38bdf8;margin:0 auto;animation:spin 1s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}
+.u-flash{display:grid;grid-template-columns:1fr 420px;min-height:520px}.u-flash>div:first-child{padding:12px 16px}
+.u-bar{height:20px;background:#1e293b;border-radius:10px;overflow:hidden;margin-top:10px}.u-bar i{display:block;height:100%;background:#22c55e}
+@media(max-width:1100px){.u-body,.u-flash{grid-template-columns:1fr}.u-ez{grid-template-columns:1fr}.bios .bbody{flex-direction:column}.bios .bleft{border-right:0;border-bottom:3px solid #1e3a8a}}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand"><div class="logo">⚙</div><span>Тренажёр «Параметры BIOS и UEFI»</span></div>
+  <div class="sp"></div>
+  <div class="who" id="who"></div>
+  <div class="pill" id="score">0 / 100</div>
+  <div class="timer" id="timer">90:00</div>
+  <button class="hbtn" id="theme" title="Тема">◐</button>
+</header>
+<div class="wrap">
+  <aside id="nav"></aside>
+  <main id="main"></main>
+</div>
+<div class="modal" id="modal"><div class="card" id="modalC"></div></div>
+<script>
+/* ======================= ОБЩЕЕ ======================= */
+const STG=[
+ {id:'intro',n:'Инструкция',min:5,pts:0},
+ {id:'s1',n:'POST и сигналы',min:10,pts:10},
+ {id:'s2',n:'Эмулятор BIOS',min:25,pts:25},
+ {id:'s3',n:'Эмулятор UEFI',min:25,pts:25},
+ {id:'s4',n:'Диагностика неисправностей',min:15,pts:20},
+ {id:'s5',n:'Итоговый тест',min:10,pts:20},
+ {id:'res',n:'Результаты',min:0,pts:0}];
+const $=s=>document.querySelector(s), main=$('#main');
+const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const r1=x=>Math.round(x*10)/10;
+const pnum=v=>parseFloat(String(v??'').replace(',','.').replace(/[^\d.\-]/g,''));
+const near=(v,a,d=.05)=>!isNaN(pnum(v))&&Math.abs(pnum(v)-a)<=d;
+const clone=o=>JSON.parse(JSON.stringify(o));
+const S={name:'',group:'',t0:0,tEnd:0,limit:5400,fin:false,cur:'intro',s1:{},s1d:false,s2q:{},s2d:false,s3q:{},s3d:false,s4:{},s4d:false,s5:{},s5d:false};
+
+/* ======================= ЭТАП 1: POST ======================= */
+const BEEPS=[['Lss',2],['s',0],['LLLLL',4],['ss',1],['ssssssss',5]];
+const BEEPOPT=['Успешное завершение POST','Незначительная ошибка (настройки CMOS)','Ошибка видеоадаптера','Ошибка оперативной памяти (тест не пройден)','ОЗУ не установлена или неисправна','Неисправность блока питания','Ошибка контроллера клавиатуры'];
+const MSGS=[['CPU Fan Error!\nPress F1 to Run SETUP',1],['Reboot and Select proper Boot device\nor Insert Boot Media in selected Boot device and press a key',2],['CMOS Checksum Error - Defaults Loaded\nPress F1 to Run SETUP',0],['USB Device Over Current Status Detected !!\nSystem will shut down after 15 seconds.',4],['Overclocking Failed!\nPlease enter Setup to re-configure your system.',3]];
+const MSGOPT=['Сбой контрольной суммы CMOS — загружены настройки по умолчанию (чаще всего разряжена батарейка)','Вентилятор процессора не вращается или не подключён','Не найдено загрузочное устройство: неверный порядок загрузки или нет загрузчика','Система не запустилась с параметрами разгона — параметры сброшены','Перегрузка по току на USB-порту (замыкание или неисправное устройство)','Неисправен жёсткий диск по данным S.M.A.R.T.','Ошибка видеоадаптера'];
+let AC;function beep(p){try{AC=AC||new (window.AudioContext||window.webkitAudioContext)();let t0=AC.currentTime+.05;for(const c of p){const d=c==='L'?.75:.18;const o=AC.createOscillator(),gn=AC.createGain();o.type='square';o.frequency.value=900;gn.gain.setValueAtTime(.0001,t0);gn.gain.exponentialRampToValueAtTime(.12,t0+.01);gn.gain.setValueAtTime(.12,t0+d-.02);gn.gain.exponentialRampToValueAtTime(.0001,t0+d);o.connect(gn).connect(AC.destination);o.start(t0);o.stop(t0+d+.02);t0+=d+.22}}catch(e){}}
+function sc1(){if(!S.s1d)return 0;let c=0;BEEPS.forEach((b,i)=>{if(S.s1['b'+i]===b[1])c++});MSGS.forEach((m,i)=>{if(S.s1['m'+i]===m[1])c++});return c}
+
+/* ======================= ЭТАП 2: ЭМУЛЯТОР BIOS ======================= */
+const BDEF={date:'01/01/2009',time:'00:12:33',ht:'Enabled',vt:'Disabled',xd:'Enabled',ss:'Enabled',cst:'Enabled',turbo:'Enabled',satac:'Enabled',satam:'IDE',lusb:'Enabled',xhci:'Enabled',audio:'Enabled',lan:'Enabled',pxe:'Enabled',serial:'Enabled',ac:'Power Off',wol:'Disabled',erp:'Disabled',qfan:'Enabled',numlock:'Off',quiet:'Enabled',fast:'Enabled',boot:['hdd','odd','net','ssd','usb'],apwd:'',upwd:'',pchk:'Setup'};
+const BDEV={ssd:'P0: Samsung SSD 870 EVO',hdd:'P1: WDC WD10EZEX',odd:'P2: ASUS DRW-24D5MT',net:'Realtek PXE B03 D00',usb:'USB: Kingston DT 3.0'};
+const B={cfg:clone(BDEF),saved:clone(BDEF),tab:0,sub:null,cur:0,pop:null,screen:'setup',saves:0,tries:0,post:null};
+const bAvail=c=>Object.keys(BDEV).filter(d=>d!=='net'||(c.pxe==='Enabled'&&c.lan==='Enabled'));
+const bEff=c=>c.boot.filter(d=>bAvail(c).includes(d));
+const EN=['Enabled','Disabled'];
+const BSUB={
+ cpu:{t:'CPU Configuration',it:[{t:'ro',l:'Processor Type',v:'Core i5-10400'},{t:'ro',l:'Cores / Threads',v:'6 / 12'},{t:'sp'},
+  {t:'opt',k:'ht',l:'Hyper-Threading',o:EN,h:'Два потока на каждом ядре. Отключение снижает производительность в многопоточных задачах.'},
+  {t:'opt',k:'vt',l:'Intel Virtualization Technology',o:EN,h:'Аппаратная виртуализация VT-x. Нужна VirtualBox, VMware, Hyper-V, WSL 2.'},
+  {t:'opt',k:'xd',l:'Execute Disable Bit',o:EN,h:'Защита NX: запрет выполнения кода из областей данных. Рекомендуется Enabled.'},
+  {t:'opt',k:'ss',l:'Intel SpeedStep',o:EN,h:'Снижение частоты и напряжения процессора при низкой нагрузке.'},
+  {t:'opt',k:'cst',l:'CPU C-States',o:EN,h:'Режимы энергосбережения ядер в простое.'},
+  {t:'opt',k:'turbo',l:'Turbo Mode',o:EN,h:'Автоматическое повышение частоты под нагрузкой (Turbo Boost).'}]},
+ sata:{t:'SATA Configuration',it:[{t:'opt',k:'satac',l:'SATA Controller(s)',o:EN,h:'Включение SATA-контроллера. При отключении диски SATA не будут видны.'},
+  {t:'opt',k:'satam',l:'SATA Mode Selection',o:['IDE','AHCI','RAID'],h:'IDE — совместимость со старыми ОС. AHCI — NCQ, горячая замена, TRIM. RAID — массивы дисков.'},{t:'sp'},
+  {t:'ro',l:'SATA Port 0',v:'Samsung SSD 870 (500GB)'},{t:'ro',l:'SATA Port 1',v:'WDC WD10EZEX (1TB)'},{t:'ro',l:'SATA Port 2',v:'ASUS DRW-24D5MT'},{t:'ro',l:'SATA Port 3',v:'Empty'}]},
+ usb:{t:'USB Configuration',it:[{t:'opt',k:'lusb',l:'Legacy USB Support',o:['Enabled','Disabled','Auto'],h:'Поддержка USB-клавиатуры и накопителей до загрузки ОС.'},{t:'opt',k:'xhci',l:'XHCI Hand-off',o:EN,h:'Передача управления контроллером USB 3.0 операционной системе.'}]},
+ onb:{t:'Onboard Devices Configuration',it:[{t:'opt',k:'audio',l:'HD Audio Controller',o:EN,h:'Встроенный звуковой контроллер.'},{t:'opt',k:'lan',l:'Onboard LAN Controller',o:EN,h:'Встроенная сетевая карта. При отключении пропадёт сеть и в ОС.'},{t:'opt',k:'pxe',l:'LAN PXE OpROM',o:EN,h:'Option ROM сетевой загрузки PXE. При Disabled сетевая карта работает, но загрузка по сети невозможна.'},{t:'opt',k:'serial',l:'Serial Port',o:EN,h:'COM-порт для старого оборудования.'}]},
+ apm:{t:'APM Configuration',it:[{t:'opt',k:'ac',l:'Restore AC Power Loss',o:['Power Off','Power On','Last State'],h:'Поведение после появления сетевого питания: остаться выключенным, включиться или вернуться в последнее состояние.'},{t:'opt',k:'wol',l:'Power On By PCI-E',o:EN,h:'Пробуждение по сети (Wake-on-LAN) и устройствам PCI-E.'},{t:'opt',k:'erp',l:'ErP Ready',o:EN,h:'Минимальное энергопотребление в выключенном состоянии (отключает дежурное питание USB и сети).'}]},
+ hw:{t:'Hardware Monitor',it:[{t:'ro',l:'CPU Temperature',v:'+48 °C'},{t:'ro',l:'MB Temperature',v:'+36 °C'},{t:'ro',l:'CPU Fan Speed',v:'1250 RPM'},{t:'ro',l:'Chassis Fan Speed',v:'860 RPM'},{t:'ro',l:'CPU Core Voltage',v:'+1.104 V'},{t:'ro',l:'3.3V Voltage',v:'+3.344 V'},{t:'ro',l:'5V Voltage',v:'+5.040 V'},{t:'ro',l:'12V Voltage',v:'+12.096 V'},{t:'sp'},{t:'opt',k:'qfan',l:'CPU Q-Fan Control',o:EN,h:'Автоматическое управление скоростью вентилятора процессора.'}]}};
+function bTab(i){const c=B.cfg;switch(i){
+ case 0:return [{t:'h',l:'BIOS Information'},{t:'ro',l:'BIOS Vendor',v:'Учебный (AMI-style)'},{t:'ro',l:'Version',v:'2203 x64'},{t:'ro',l:'Build Date',v:'03/14/2024'},{t:'sp'},{t:'ro',l:'Processor',v:'Core i5-10400 2.90GHz'},{t:'ro',l:'Total Memory',v:'16384 MB (DDR4)'},{t:'sp'},
+  {t:'date',k:'date',l:'System Date',h:'Формат ММ/ДД/ГГГГ (месяц/день/год). Enter — ввести. Значение сразу записывается в часы RTC.'},{t:'time',k:'time',l:'System Time',h:'Формат ЧЧ:ММ:СС, 24 часа. Enter — ввести. Записывается в RTC сразу.'}];
+ case 1:return [{t:'h',l:'Advanced Settings'},...Object.keys(BSUB).map(k=>({t:'sub',s:k,l:BSUB[k].t,h:'Enter — открыть подменю.'})) ];
+ case 2:{const e=bEff(c);return [{t:'opt',k:'numlock',l:'Bootup NumLock State',o:['On','Off'],h:'Состояние NumLock при загрузке.'},{t:'opt',k:'quiet',l:'Quiet Boot',o:EN,h:'Логотип вместо сообщений POST.'},{t:'opt',k:'fast',l:'Fast Boot',o:EN,h:'Ускоренная загрузка: часть проверок пропускается, войти в Setup сложнее.'},{t:'sp'},{t:'h',l:'Boot Option Priorities'},...e.map((d,i)=>({t:'boot',i,l:'Boot Option #'+(i+1),h:'Enter — выбрать устройство. Выбор устройства, уже стоящего в другой позиции, меняет их местами.'}))]}
+ case 3:return [{t:'ro',l:'Administrator Password',v:c.apwd?'Installed':'Not Installed'},{t:'ro',l:'User Password',v:c.upwd?'Installed':'Not Installed'},{t:'sp'},{t:'pwd',k:'apwd',l:'Administrator Password',h:'Пароль на вход в Setup. Enter — установить/изменить. Пустой новый пароль удаляет его.'},{t:'pwd',k:'upwd',l:'User Password',h:'Пароль пользователя.'},{t:'opt',k:'pchk',l:'Password Check',o:['Setup','Always'],h:'Setup — пароль только при входе в Setup; Always — и при каждой загрузке.'}];
+ case 4:return [{t:'act',a:'save',l:'Save Changes and Reset',h:'Сохранить изменения и перезагрузить (F10).'},{t:'act',a:'discard',l:'Discard Changes and Exit',h:'Выйти без сохранения.'},{t:'act',a:'savenr',l:'Save Changes',h:'Сохранить без перезагрузки.'},{t:'act',a:'defaults',l:'Restore Defaults',h:'Загрузить оптимальные значения по умолчанию (F9).'},{t:'sp'},{t:'h',l:'Boot Override'},...bEff(c).map(d=>({t:'act',a:'ovr:'+d,l:BDEV[d],h:'Однократная загрузка с этого устройства без сохранения.'}))];}}
+const BTABS=['Main','Advanced','Boot','Security','Save & Exit'];
+const bItems=()=>B.sub?BSUB[B.sub].it:bTab(B.tab);
+const bSel=it=>['opt','sub','date','time','pwd','boot','act'].includes(it.t);
+function bFirst(){const it=bItems();B.cur=Math.max(0,it.findIndex(bSel))}
+function bVal(it){const c=B.cfg;if(it.t==='opt')return '['+c[it.k]+']';if(it.t==='date'||it.t==='time')return '['+c[it.k]+']';if(it.t==='boot')return '['+(BDEV[bEff(c)[it.i]]||'Disabled')+']';if(it.t==='ro')return it.v;return ''}
+function brender(){const w=$('#bwrap');if(!w)return;
+ if(B.screen==='post'){w.innerHTML=`<div class="post">${B.post.map((l,i)=>`<div style="animation-delay:${i*.18}s" class="${l[1]||''}">${esc(l[0])}</div>`).join('')}<div style="animation-delay:${B.post.length*.18+.3}s" class="pk">Нажмите <b>Del</b>, чтобы войти в BIOS Setup</div></div>`;return}
+ if(B.screen==='halt'){w.innerHTML=`<div class="post"><div class="er">Неверный пароль введён 3 раза.</div><div class="er">System Halted!</div><div class="pk">Выполните сброс CMOS (кнопка под эмулятором).</div></div>`;return}
+ const it=bItems();
+ const rows=it.map((x,i)=>x.t==='sp'?'<div class="row">&nbsp;</div>':x.t==='h'?`<div class="row h">${esc(x.l)}</div>`:`<div class="row ${bSel(x)?'':'ro'}${i===B.cur&&B.screen==='setup'?' sel':''}"><span>${x.t==='sub'?'▶ ':''}${esc(x.l)}</span><span class="v">${esc(bVal(x))}</span></div>`).join('');
+ const cur=it[B.cur]||{};
+ let pop='';if(B.pop){const p=B.pop;
+  if(p.type==='list')pop=`<div class="ttl">${esc(p.title)}</div>${p.opts.map((o,i)=>`<div class="it${i===p.idx?' on':''}">${esc(o)}</div>`).join('')}`;
+  else if(p.type==='confirm')pop=`<div class="ttl">${esc(p.title)}</div><div class="it">${esc(p.text)}</div><div class="yn"><span class="${p.yes?'on':''}">Yes</span><span class="${p.yes?'':'on'}">No</span></div>`;
+  else if(p.type==='input')pop=`<div class="ttl">${esc(p.title)}</div><div class="it"><input id="binp" type="${p.mask?'password':'text'}" value="${esc(p.value||'')}" autocomplete="off" spellcheck="false"></div><div class="it" style="font-size:22pt;opacity:.8">${esc(p.hint||'Enter — OK, Esc — отмена')}</div>`;
+  else pop=`<div class="ttl">${esc(p.title)}</div><div class="it">${esc(p.text)}</div><div class="yn"><span class="on">Ok</span></div>`;
+  pop=`<div class="bpop"><div class="box">${pop}</div></div>`}
+ w.innerHTML=`<div class="bios"><div class="bt">BIOS Setup Utility · учебный эмулятор (AMI-style)</div>
+ <div class="btabs">${BTABS.map((t,i)=>`<span class="${i===B.tab?'on':''}">${t}</span>`).join('')}</div>
+ <div class="bbody"><div class="bleft">${B.sub?`<div class="row h">▼ ${esc(BSUB[B.sub].t)}</div>`:''}${rows}</div><div class="bright">${esc(cur.h||'')}${B.sub?'<br><br>Esc — назад':''}</div></div>
+ <div class="bkeys">←→ раздел · ↑↓ пункт · Enter выбор · +/− значение · F1 справка · F9 по умолчанию · F10 сохранить · Esc выход</div>${pop}</div>`;
+ const inp=$('#binp');if(!inp&&(document.activeElement===document.body||!document.activeElement))w.focus({preventScroll:true});if(inp){inp.focus({preventScroll:true});inp.select();inp.onkeydown=e=>{e.stopPropagation();if(e.key==='Enter'){e.preventDefault();const p=B.pop;B.pop=null;p.ok(inp.value);brender()}else if(e.key==='Escape'){e.preventDefault();B.pop=null;brender();$('#bwrap').focus()}}}
+ $('#bst')&&($('#bst').innerHTML=`Сохранений: <b>${B.saves}</b> · ${JSON.stringify(B.cfg)===JSON.stringify(B.saved)?'изменений нет':'<span style="color:var(--acc4)">есть несохранённые изменения</span>'}`)}
+const bPop=p=>{B.pop=p};
+const bMsg=(title,text,after)=>bPop({type:'msg',title,text,after});
+function bPost(dev){const c=B.saved,l=[];l.push(['Учебная системная плата B460 · BIOS v2203 (03/14/2024)']);l.push(['CPU : Intel(R) Core(TM) i5-10400 CPU @ 2.90GHz']);l.push(['Memory Test : 16384M OK']);
+ l.push([`SATA Mode : ${c.satam}`]);if(c.satac==='Enabled')l.push(['Detecting drives... P0 Samsung SSD 870, P1 WDC WD10EZEX, P2 ASUS DRW']);else l.push(['SATA Controller disabled — диски не обнаружены','er']);
+ if(c.fast==='Enabled')l.push(['Fast Boot: часть инициализации пропущена','dim']);l.push(['Press DEL to run Setup']);l.push(['']);
+ const order=dev?[dev]:bEff(c);let ok=false;
+ for(const d of order){if(d==='usb'){l.push(['Загрузка с '+BDEV[d]+' ...']);l.push(['Найден загрузчик: установщик ОС запущен ✔','ok']);ok=true;break}
+  if(d==='net'){l.push(['PXE-E61: Media test failure, check cable','er']);continue}
+  if(c.satac!=='Enabled'&&d!=='usb')continue;l.push([BDEV[d]+': загрузочная запись не найдена','dim'])}
+ if(!ok)l.push(['Reboot and Select proper Boot device','er'],['or Insert Boot Media in selected Boot device and press a key','er']);
+ B.post=l;B.screen='post';B.pop=null}
+function bEnter(){B.cfg=clone(B.saved);B.tab=0;B.sub=null;bFirst();if(B.saved.apwd){B.screen='setup';B.tries=0;askPwd()}else B.screen='setup'}
+function askPwd(){bPop({type:'input',title:'Enter Password',mask:true,ok:v=>{if(v===B.saved.apwd){B.tries=0}else{B.tries++;if(B.tries>=3){B.screen='halt'}else{bMsg('Invalid Password','Неверный пароль',askPwd)}}}})}
+function bAct(a){
+ if(a==='save')bPop({type:'confirm',title:'Save & Exit Setup',text:'Save configuration and reset?',yes:true,ok:()=>{B.saved=clone(B.cfg);B.saves++;bPost()}});
+ else if(a==='discard')bPop({type:'confirm',title:'Exit Without Saving',text:'Quit without saving?',yes:true,ok:()=>{B.cfg=clone(B.saved);bPost()}});
+ else if(a==='savenr')bPop({type:'confirm',title:'Save Changes',text:'Save configuration?',yes:true,ok:()=>{B.saved=clone(B.cfg);B.saves++}});
+ else if(a==='defaults')bPop({type:'confirm',title:'Load Optimized Defaults',text:'Load Optimized Defaults?',yes:true,ok:()=>{const k=B.cfg;Object.keys(BDEF).forEach(x=>{if(!['date','time','apwd','upwd'].includes(x))k[x]=clone(BDEF[x])});k.numlock='On'}});
+ else if(a.startsWith('ovr:'))bPop({type:'confirm',title:'Boot Override',text:'Загрузиться с '+BDEV[a.slice(4)]+'?',yes:true,ok:()=>bPost(a.slice(4))})}
+function bActivate(it){const c=B.cfg;
+ if(it.t==='sub'){B.sub=it.s;bFirst();return}
+ if(it.t==='opt'){bPop({type:'list',title:it.l,opts:it.o,idx:Math.max(0,it.o.indexOf(c[it.k])),ok:i=>{c[it.k]=it.o[i]}});return}
+ if(it.t==='boot'){const e=bEff(c);bPop({type:'list',title:it.l,opts:e.map(d=>BDEV[d]),idx:it.i,ok:j=>{const n=e.slice();[n[it.i],n[j]]=[n[j],n[it.i]];c.boot=n.concat(c.boot.filter(d=>!n.includes(d)))}});return}
+ if(it.t==='date')bPop({type:'input',title:'System Date (MM/DD/YYYY)',value:c.date,ok:v=>{const m=v.trim().match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);if(!m||+m[1]<1||+m[1]>12||+m[2]<1||+m[2]>31){bMsg('Error','Invalid date. Формат: ММ/ДД/ГГГГ');return}const d=`${m[1].padStart(2,'0')}/${m[2].padStart(2,'0')}/${m[3]}`;c.date=d;B.saved.date=d}});
+ if(it.t==='time')bPop({type:'input',title:'System Time (HH:MM:SS)',value:c.time,ok:v=>{const m=v.trim().match(/^(\d{1,2}):(\d{2})(?::(\d{2}))?$/);if(!m||+m[1]>23||+m[2]>59||(m[3]&&+m[3]>59)){bMsg('Error','Invalid time. Формат: ЧЧ:ММ:СС');return}const t=`${m[1].padStart(2,'0')}:${m[2]}:${m[3]||'00'}`;c.time=t;B.saved.time=t}});
+ if(it.t==='pwd'){const k=it.k;const setNew=()=>bPop({type:'input',title:'Create New Password',mask:true,hint:'Пустое значение — удалить пароль',ok:v1=>{if(!v1){c[k]='';bMsg('Password','Пароль удалён.');return}bPop({type:'input',title:'Confirm New Password',mask:true,ok:v2=>{if(v1!==v2){bMsg('Warning','Passwords do not match! Пароли не совпадают.')}else{c[k]=v1;bMsg('Password','Пароль установлен (будет действовать после сохранения).')}}})}});
+  if(c[k])bPop({type:'input',title:'Enter Current Password',mask:true,ok:v=>{if(v!==c[k])bMsg('Error','Invalid Password');else setNew()}});else setNew();return}
+ if(it.t==='act')bAct(it.a)}
+function bKey(e){if(S.s2d)return;const k=e.key;const nav=['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Enter','Escape','F1','F9','F10','+','-','PageUp','PageDown',' ','Delete','F2','y','n','Y','N'];if(nav.includes(k)&&e.preventDefault)e.preventDefault();
+ if(B.screen==='post'){if(k==='Delete'||k==='F2'){bEnter();brender()}return}
+ if(B.screen==='halt')return;
+ const p=B.pop;
+ if(p){if(p.type==='list'){if(k==='ArrowUp')p.idx=(p.idx+p.opts.length-1)%p.opts.length;else if(k==='ArrowDown')p.idx=(p.idx+1)%p.opts.length;else if(k==='Enter'){B.pop=null;p.ok(p.idx)}else if(k==='Escape')B.pop=null}
+  else if(p.type==='confirm'){if(k==='ArrowLeft'||k==='ArrowRight')p.yes=!p.yes;else if(k==='y'||k==='Y'){B.pop=null;p.ok()}else if(k==='n'||k==='N'||k==='Escape')B.pop=null;else if(k==='Enter'){B.pop=null;if(p.yes)p.ok()}}
+  else if(p.type==='msg'){if(k==='Enter'||k==='Escape'){B.pop=null;p.after&&p.after()}}
+  brender();return}
+ const it=bItems();
+ const mv=d=>{let i=B.cur;for(let n=0;n<it.length;n++){i=(i+d+it.length)%it.length;if(bSel(it[i])){B.cur=i;break}}};
+ if(k==='ArrowUp')mv(-1);else if(k==='ArrowDown')mv(1);
+ else if(k==='ArrowLeft'||k==='ArrowRight'){B.tab=(B.tab+(k==='ArrowLeft'?4:1))%5;B.sub=null;bFirst()}
+ else if(k==='Enter'){const x=it[B.cur];if(x&&bSel(x))bActivate(x)}
+ else if(['+','-','PageUp','PageDown'].includes(k)){const x=it[B.cur];if(x&&x.t==='opt'){const i=x.o.indexOf(B.cfg[x.k]);B.cfg[x.k]=x.o[(i+((k==='+'||k==='PageUp')?1:x.o.length-1))%x.o.length]}}
+ else if(k==='Escape'){if(B.sub){const s=B.sub;B.sub=null;const n=bItems().findIndex(x=>x.s===s);B.cur=n>=0?n:0}else bAct('discard')}
+ else if(k==='F1')bMsg('General Help','←→ — разделы; ↑↓ — пункты; Enter — выбрать/подменю; +/− — изменить значение; Esc — назад/выход; F9 — значения по умолчанию; F10 — сохранить и выйти.');
+ else if(k==='F9')bAct('defaults');else if(k==='F10')bAct('save');
+ brender()}
+const B_ITEMS=[['Дата 10/27/2026 (ММ/ДД/ГГГГ)',s=>s.date==='10/27/2026'],['Время 09:00',s=>s.time.startsWith('09:00')],['SATA Mode: AHCI',s=>s.satam==='AHCI'],['Intel Virtualization Technology: Enabled',s=>s.vt==='Enabled'],['Boot Option #1: USB-флешка',s=>bEff(s)[0]==='usb'],['Boot Option #2: SSD Samsung 500 ГБ',s=>bEff(s)[1]==='ssd'],['LAN PXE OpROM: Disabled (LAN Controller: Enabled)',s=>s.pxe==='Disabled'&&s.lan==='Enabled'],['HD Audio Controller: Disabled',s=>s.audio==='Disabled'],['Restore AC Power Loss: Power On',s=>s.ac==='Power On'],['Administrator Password: Kl@ss2026',s=>s.apwd==='Kl@ss2026'],['Bootup NumLock State: On',s=>s.numlock==='On'],['Fast Boot: Disabled',s=>s.fast==='Disabled']];
+const B_CLEAN=['ht','xd','ss','cst','turbo','satac','lusb','xhci','serial','quiet','wol','erp'];
+const B_Q=[['q1','Температура процессора, °C',48,.5],['q2','Напряжение по линии +12V, В',12.096,.01],['q3','Версия BIOS',2203,0]];
+function sc2(){if(!S.s2d)return 0;const s=B.saved;let v=B_ITEMS.filter(x=>x[1](s)).length*1.5;B_Q.forEach(q=>{if(near(S.s2q[q[0]],q[2],q[3]))v+=2});if(B_CLEAN.every(k=>s[k]===BDEF[k]))v+=1;return r1(v)}
+
+/* ======================= ЭТАП 3: ЭМУЛЯТОР UEFI ======================= */
+const UDEF={lang:'English',aiot:'Auto',memf:'Auto',ratio:'Auto',svm:'Disabled',smt:'Auto',tpm:'Discrete TPM',audio:'Enabled',wifi:'Enabled',bt:'Enabled',rgb:'On',erp:'Enable(S4+S5)',wol:'Disabled',ac:'Power Off',cpufan:'Standard',chfan:'Standard',fast:'Enabled',csm:'Enabled',bootdev:'UEFI and Legacy OpROM',ostype:'Other OS',pk:false,boot:['lusb','wbm','uusb','pxe']};
+const UDEV={wbm:['Windows Boot Manager (Samsung SSD 980)',1],uusb:['UEFI: Kingston DataTraveler 3.0, Partition 1',1],lusb:['Kingston DataTraveler 3.0',0],pxe:['UEFI: PXE IPv4 Realtek PCIe GbE',1]};
+const U={cfg:clone(UDEF),saved:clone(UDEF),ver:'3405',mode:'ez',tab:'Main',stack:[],pop:null,screen:'setup',help:'Наведите указатель на параметр, чтобы увидеть подсказку.',flog:[]};
+const uEff=c=>c.boot.filter(d=>UDEV[d][1]||c.csm==='Enabled');
+const uMem=c=>c.aiot.startsWith('XMP')?3600:(c.aiot==='Manual'&&c.memf!=='Auto'?+c.memf.slice(5):2133);
+const uSB=c=>c.csm==='Disabled'&&c.ostype==='Windows UEFI mode'&&c.pk;
+const UL={lang:'System Language',aiot:'Ai Overclock Tuner',memf:'Memory Frequency',ratio:'CPU Core Ratio',svm:'SVM Mode',smt:'SMT Mode',tpm:'TPM Device Selection',audio:'HD Audio Controller',wifi:'Wi-Fi Controller',bt:'Bluetooth Controller',rgb:'RGB Lighting',erp:'ErP Ready',wol:'Power On By PCI-E',ac:'Restore AC Power Loss',cpufan:'CPU Fan Profile',chfan:'Chassis Fan Profile',fast:'Fast Boot',csm:'Launch CSM',bootdev:'Boot Device Control',ostype:'OS Type',pk:'Secure Boot Keys',boot:'Boot Option Priorities'};
+const FANS=['Standard','Silent','Turbo','Full Speed','Manual'];
+const USUB={
+ cpu:{t:'CPU Configuration',it:c=>[{t:'ro',l:'Processor',v:'AMD Ryzen 5 5600X 6-Core'},{t:'ro',l:'Cores / Threads',v:'6 / 12'},{t:'opt',k:'svm',o:['Disabled','Enabled'],h:'SVM Mode — аппаратная виртуализация AMD-V. Нужна Hyper-V, WSL 2, VirtualBox, VMware.'},{t:'opt',k:'smt',o:['Auto','Disabled'],h:'Simultaneous Multithreading — два потока на ядро (аналог Hyper-Threading).'}]},
+ tpm:{t:'AMD fTPM configuration',it:c=>[{t:'opt',k:'tpm',o:['Discrete TPM','Firmware TPM'],h:'Discrete TPM — внешний модуль на разъёме платы (у этой платы он не установлен). Firmware TPM — встроенный в процессор AMD fTPM 2.0.'},{t:'ro',l:'TPM Status',v:c.tpm==='Firmware TPM'?'fTPM 2.0 — Active':'TPM device not found'}]},
+ onb:{t:'Onboard Devices Configuration',it:c=>[{t:'opt',k:'audio',o:['Enabled','Disabled'],h:'Встроенный звуковой контроллер.'},{t:'opt',k:'wifi',o:['Enabled','Disabled'],h:'Встроенный адаптер Wi-Fi.'},{t:'opt',k:'bt',o:['Enabled','Disabled'],h:'Встроенный Bluetooth.'},{t:'opt',k:'rgb',o:['On','Off in S3/S4/S5','Off'],h:'Подсветка платы.'}]},
+ apm:{t:'APM Configuration',it:c=>[{t:'opt',k:'erp',o:['Disabled','Enable(S4+S5)','Enable(S5)'],h:'ErP — потребление в выключенном состоянии не более 1 Вт: отключается дежурное питание сетевой карты и USB, поэтому пробуждение по сети невозможно.'},{t:'opt',k:'wol',o:['Disabled','Enabled'],dis:c.erp!=='Disabled',h:c.erp!=='Disabled'?'Недоступно: включён режим ErP, дежурное питание сетевой карты отключено.':'Включение компьютера по сети (Wake-on-LAN) и устройствами PCI-E.'},{t:'opt',k:'ac',o:['Power Off','Power On','Last State'],h:'Поведение после восстановления сетевого питания.'}]},
+ nvme:{t:'NVMe Configuration',it:c=>[{t:'ro',l:'M.2_1',v:'Samsung SSD 980 500GB'},{t:'ro',l:'Partition style',v:'GPT'}]},
+ fan:{t:'Q-Fan Configuration',it:c=>[{t:'opt',k:'cpufan',o:FANS,h:'Профиль вентилятора процессора: Silent — тихий, Standard — стандартный, Turbo — повышенные обороты, Full Speed — максимум.'},{t:'opt',k:'chfan',o:FANS,h:'Профиль корпусного вентилятора.'}]},
+ csm:{t:'CSM (Compatibility Support Module)',it:c=>[{t:'opt',k:'csm',o:['Enabled','Disabled'],h:'Модуль совместимости с Legacy BIOS. При Enabled доступны Legacy-пункты загрузки, но Secure Boot не работает.'},...(c.csm==='Enabled'?[{t:'opt',k:'bootdev',o:['UEFI and Legacy OpROM','Legacy OpROM only','UEFI only'],h:'Какие загрузочные устройства разрешены в режиме CSM.'}]:[])]},
+ sb:{t:'Secure Boot',it:c=>[{t:'ro',l:'Secure Boot state',v:uSB(c)?'Enabled':'Disabled'},{t:'ro',l:'Platform Key (PK) state',v:c.pk?'Loaded':'Unloaded'},{t:'ro',l:'Secure Boot Mode',v:c.pk?'User':'Setup'},{t:'opt',k:'ostype',o:['Other OS','Windows UEFI mode'],dis:c.csm==='Enabled',h:c.csm==='Enabled'?'Недоступно: включён CSM. Secure Boot работает только в режиме UEFI без модуля совместимости.':'Windows UEFI mode — проверка подписей загрузчиков включена (при загруженных ключах). Other OS — проверка отключена.'},{t:'sub',s:'keys',l:'Key Management',h:'Управление ключами PK, KEK, db, dbx.'}]},
+ keys:{t:'Key Management',it:c=>[{t:'act',a:'keysInstall',l:'Install Default Secure Boot keys',h:'Установить заводские ключи PK, KEK, db, dbx. Secure Boot переходит в режим User.'},{t:'act',a:'keysClear',l:'Clear Secure Boot keys',h:'Удалить все ключи — Secure Boot переходит в режим Setup и не действует.'}]}};
+const UTABS=['Main','Ai Tweaker','Advanced','Monitor','Boot','Tool','Exit'];
+function uTab(tb){const c=U.cfg;switch(tb){
+ case 'Main':return [{t:'h',l:'BIOS Information'},{t:'ro',l:'BIOS Version',v:U.ver+' x64'},{t:'ro',l:'Build Date',v:U.ver==='3611'?'02/14/2025':U.ver==='3202'?'03/02/2023':'10/18/2023'},{t:'ro',l:'Platform',v:'B550 (учебная плата)'},{t:'h',l:'CPU / Memory'},{t:'ro',l:'Processor',v:'AMD Ryzen 5 5600X'},{t:'ro',l:'Total Memory',v:'16384 MB'},{t:'ro',l:'Memory Frequency',v:uMem(c)+' MHz'},{t:'opt',k:'lang',o:['English','Русский'],h:'Язык интерфейса (в эмуляторе меняется только значение).'},{t:'ro',l:'System Date',v:'10/27/2026'},{t:'ro',l:'System Time',v:'09:00:00'}];
+ case 'Ai Tweaker':return [{t:'ro',l:'Target DRAM Frequency',v:uMem(c)+' MHz'},{t:'ro',l:'DRAM Voltage',v:c.aiot.startsWith('XMP')?'1.350 V':'1.200 V'},{t:'opt',k:'aiot',o:['Auto','Manual','XMP Profile 1','XMP Profile 2'],h:'Auto — стандартные параметры JEDEC (2133 МГц). XMP Profile 1/2 — паспортные частота, тайминги и напряжение из SPD модуля. Manual — ручная настройка.'},{t:'opt',k:'memf',o:['Auto','DDR4-2133','DDR4-2400','DDR4-2666','DDR4-3200','DDR4-3600'],dis:c.aiot!=='Manual',h:c.aiot!=='Manual'?'Доступно только в режиме Manual.':'Ручной выбор частоты памяти.'},{t:'opt',k:'ratio',o:['Auto','Sync All Cores'],h:'Множитель процессора. Auto — по умолчанию.'}];
+ case 'Advanced':return ['cpu','tpm','onb','apm','nvme'].map(s=>({t:'sub',s,l:USUB[s].t,h:'Открыть подменю.'}));
+ case 'Monitor':return [{t:'h',l:'Temperature'},{t:'ro',l:'CPU Temperature',v:'+41 °C'},{t:'ro',l:'Motherboard Temperature',v:'+33 °C'},{t:'h',l:'Fan Speed'},{t:'ro',l:'CPU Fan Speed',v:c.cpufan==='Silent'?'760 RPM':'980 RPM'},{t:'ro',l:'Chassis Fan Speed',v:'1 120 RPM'},{t:'h',l:'Voltage'},{t:'ro',l:'CPU Core Voltage',v:'1.288 V'},{t:'ro',l:'12V Voltage',v:'12.096 V'},{t:'sub',s:'fan',l:'Q-Fan Configuration',h:'Профили вентиляторов.'}];
+ case 'Boot':{const e=uEff(c);return [{t:'opt',k:'fast',o:['Enabled','Disabled'],h:'Ускоренная загрузка.'},{t:'sub',s:'csm',l:'CSM (Compatibility Support Module)',h:'Модуль совместимости с BIOS.'},{t:'sub',s:'sb',l:'Secure Boot',h:'Безопасная загрузка.'},{t:'h',l:'Boot Option Priorities'},...e.map((d,i)=>({t:'boot',i,l:'Boot Option #'+(i+1),h:'Выберите устройство. Пункты с префиксом «UEFI:» загружаются в режиме UEFI, без префикса — в режиме Legacy (через CSM).'}))]}
+ case 'Tool':return [{t:'act',a:'flash',l:'EZ Flash Utility',h:'Обновление прошивки с USB-накопителя.'},{t:'ro',l:'Current BIOS',v:U.ver}];
+ case 'Exit':return [{t:'act',a:'defaults',l:'Load Optimized Defaults',h:'Загрузить значения по умолчанию (F5).'},{t:'act',a:'save',l:'Save Changes & Reset',h:'Сохранить изменения и перезагрузить (F10).'},{t:'act',a:'discard',l:'Discard Changes & Exit',h:'Выйти без сохранения.'}];}}
+const uItems=()=>U.stack.length?USUB[U.stack[U.stack.length-1]].it(U.cfg):uTab(U.tab);
+const uName=it=>it.l||UL[it.k];
+function uDiff(){const a=U.saved,b=U.cfg,out=[];Object.keys(UL).forEach(k=>{if(JSON.stringify(a[k])!==JSON.stringify(b[k])){const f=v=>k==='boot'?uEff({...b,boot:v}).map(d=>({wbm:'Windows Boot Manager',uusb:'UEFI: USB',lusb:'USB (Legacy)',pxe:'UEFI: PXE'})[d]).join(' › '):k==='pk'?(v?'Loaded':'Unloaded'):v;out.push([UL[k],f(a[k]),f(b[k])])}});return out}
+function uRow(it,i){if(it.t==='h')return `<div class="u-row h">${esc(it.l)}</div>`;const dis=it.dis?' dis':'';
+ let v='';if(it.t==='opt')v=U.cfg[it.k];else if(it.t==='ro')v=it.v;else if(it.t==='boot')v=UDEV[uEff(U.cfg)[it.i]][0];
+ return `<div class="u-row${it.t==='ro'?' ro':''}${dis}" data-ui="${i}"><span>${it.t==='sub'?'› ':''}${esc(uName(it))}</span>${v!==''?`<span class="v">${esc(v)}${it.t==='opt'||it.t==='boot'?' ▾':''}</span>`:it.t==='act'?'<span class="v">▶</span>':''}</div>`}
+function urender(){const w=$('#uwrap');if(!w)return;const c=U.cfg;
+ if(U.screen==='reboot'){w.innerHTML=`<div class="uefi"><div class="u-boot"><div class="u-logo">⚙ Учебная плата B550</div><div class="u-spin"></div><div>${esc(U.rmsg||'Перезагрузка…')}</div></div></div>`;return}
+ if(U.screen==='flash'){w.innerHTML=`<div class="uefi"><div class="u-top"><b>EZ Flash Utility</b><span class="sp"></span><span>Текущая прошивка: B550 · версия <b>${U.ver}</b></span></div>
+  <div class="u-flash"><div><div class="u-row h">fs0: USB Kingston DataTraveler (FAT32)</div>${[['B550-3202.CAP','3202','03/02/2023','B550'],['B550-3611.CAP','3611','02/14/2025','B550'],['B460-2203.CAP','2203','03/14/2024','B460'],['README.TXT','','','']].map((f,i)=>`<div class="u-row" data-file="${i}"><span>📄 ${f[0]}</span><span class="v">${f[2]||'текст'}</span></div>`).join('')}</div>
+  <div class="u-side"><div id="finfo" class="u-help">${U.finfo||'Выберите файл прошивки.'}</div><div id="fprog"></div></div></div>
+  <div class="u-bot"><button class="u-btn" data-u="flashExit">◀ Выход из EZ Flash</button></div>${uPopHTML()}</div>`;return}
+ const top=`<div class="u-top"><b>UEFI BIOS Utility</b><span class="u-mode">${U.mode==='ez'?'EZ Mode':'Advanced Mode'}</span><span class="sp"></span><span>10/27/2026 · Tuesday 09:00</span><span>${esc(c.lang)}</span></div>`;
+ const bot=`<div class="u-bot"><button class="u-btn" data-u="def">Default (F5)</button><button class="u-btn" data-u="mode">${U.mode==='ez'?'Advanced Mode (F7)':'EZ Mode (F7)'}</button><button class="u-btn pri" data-u="save">Save &amp; Exit (F10)</button></div>`;
+ if(U.mode==='ez'){const e=uEff(c);
+  w.innerHTML=`<div class="uefi" tabindex="-1">${top}<div class="u-ez">
+  <div class="tile"><h4>Information</h4>B550 · BIOS ${U.ver}<br>AMD Ryzen 5 5600X<br>16384 MB · ${uMem(c)} MHz</div>
+  <div class="tile"><h4>CPU</h4>Temperature <b>41 °C</b><br>Core Voltage 1.288 V<br>Fan ${c.cpufan==='Silent'?'760':'980'} RPM</div>
+  <div class="tile"><h4>X.M.P.</h4><div class="u-row" data-ez="xmp"><span>Profile</span><span class="v">${c.aiot.startsWith('XMP')?c.aiot.replace('XMP ',''):'Disabled'} ▾</span></div><div style="opacity:.75">DIMM_A1, DIMM_B1: 8 GB DDR4-3600 (XMP)</div></div>
+  <div class="tile"><h4>Security</h4>Secure Boot: <b>${uSB(c)?'Enabled':'Disabled'}</b><br>TPM: ${c.tpm==='Firmware TPM'?'fTPM 2.0':'not found'}<br>CSM: ${c.csm}</div>
+  <div class="tile"><h4>CPU Fan Profile</h4><div class="u-row" data-ez="fan"><span>Profile</span><span class="v">${c.cpufan} ▾</span></div></div>
+  <div class="tile wide"><h4>Boot Priority</h4>${e.map((d,i)=>`<div class="u-brow"><span>${i+1}. ${esc(UDEV[d][0])}</span><span><button class="u-mini" data-up="${i}">▲</button><button class="u-mini" data-dn="${i}">▼</button></span></div>`).join('')}</div>
+  </div>${bot}${uPopHTML()}</div>`;return}
+ const it=uItems();const crumbs=[U.tab,...U.stack.map(s=>USUB[s].t)].join(' \\ ');
+ w.innerHTML=`<div class="uefi" tabindex="-1">${top}<div class="u-tabs">${UTABS.map(t=>`<button class="${t===U.tab?'on':''}" data-tab="${t}">${t}</button>`).join('')}</div>
+ <div class="u-body"><div class="u-list">${U.stack.length?`<div class="u-crumb" data-u="back">◀ ${esc(crumbs)}</div>`:''}${it.map(uRow).join('')}</div>
+ <div class="u-side"><h4>Подсказка</h4><div class="u-help" id="uhelp">${esc(U.help)}</div><h4 style="margin-top:16px">Hardware Monitor</h4><div class="u-hw">CPU 3700 MHz · 41 °C<br>Vcore 1.288 V<br>Memory ${uMem(c)} MHz<br>Secure Boot: ${uSB(c)?'On':'Off'}</div></div></div>${bot}${uPopHTML()}</div>`}
+function uPopHTML(){const p=U.pop;if(!p)return '';
+ if(p.type==='list')return `<div class="u-pop"><div class="u-dlg"><h4>${esc(p.title)}</h4>${p.opts.map((o,i)=>`<button class="u-opt${i===p.idx?' on':''}" data-po="${i}">${esc(o)}</button>`).join('')}<div class="u-bot" style="background:none"><button class="u-btn" data-pc="1">Отмена</button></div></div></div>`;
+ if(p.type==='confirm')return `<div class="u-pop"><div class="u-dlg"><h4>${esc(p.title)}</h4><div class="u-help">${p.html||esc(p.text)}</div><div class="u-bot" style="background:none"><button class="u-btn" data-pc="1">${p.no||'Отмена'}</button><button class="u-btn pri" data-py="1">${p.yesl||'OK'}</button></div></div></div>`;
+ return `<div class="u-pop"><div class="u-dlg"><h4>${esc(p.title)}</h4><div class="u-help">${esc(p.text)}</div><div class="u-bot" style="background:none"><button class="u-btn pri" data-pc="1">OK</button></div></div></div>`}
+function uReboot(msg,after){U.screen='reboot';U.rmsg=msg;U.pop=null;urender();setTimeout(()=>{U.screen='setup';U.mode='ez';U.stack=[];U.tab='Main';after&&after();urender()},1800)}
+function uAct(a){
+ if(a==='save'){const d=uDiff();U.pop={type:'confirm',title:'Save & reset',yesl:'Сохранить и перезагрузить',html:d.length?'<b>Изменения:</b><br>'+d.map(x=>`${esc(x[0])}: ${esc(String(x[1]))} → <b>${esc(String(x[2]))}</b>`).join('<br>'):'Изменений нет.',ok:()=>{U.saved=clone(U.cfg);uReboot('Сохранение настроек и перезагрузка…')}};}
+ else if(a==='discard')U.pop={type:'confirm',title:'Discard Changes & Exit',text:'Выйти без сохранения изменений?',ok:()=>{U.cfg=clone(U.saved);uReboot('Перезагрузка без сохранения…')}};
+ else if(a==='defaults')U.pop={type:'confirm',title:'Load Optimized Defaults',text:'Загрузить оптимальные значения по умолчанию?',ok:()=>{U.cfg=clone(UDEF)}};
+ else if(a==='keysInstall')U.pop={type:'confirm',title:'Install Default Secure Boot keys',text:'Установить заводские ключи PK, KEK, db, dbx?',ok:()=>{U.cfg.pk=true}};
+ else if(a==='keysClear')U.pop={type:'confirm',title:'Clear Secure Boot keys',text:'Удалить все ключи Secure Boot?',ok:()=>{U.cfg.pk=false}};
+ else if(a==='flash'){U.screen='flash';U.pop=null}}
+function uFlash(i){if(U.flashing)return;U.fsel=i;const F=[['B550-3202.CAP','3202','B550'],['B550-3611.CAP','3611','B550'],['B460-2203.CAP','2203','B460'],['README.TXT','','']][i];const fi={set innerHTML(v){U.finfo=v;const e=$('#finfo');if(e)e.innerHTML=v}};
+ if(!F[1]){fi.innerHTML='README.TXT: «Перед обновлением подключите ПК к ИБП. Не выключайте питание во время прошивки.»';return}
+ fi.innerHTML=`<b>${F[0]}</b><br>Платформа: ${F[2]}<br>Версия: ${F[1]}`;
+ if(F[2]!=='B550'){U.pop={type:'msg',title:'Ошибка',text:'Это не подходящий файл BIOS для данной платы (платформа '+F[2]+'). Обновление невозможно.'};urender();return}
+ const go=()=>{U.pop=null;U.flashing=true;let p=0;const st=['Стирание…','Запись…','Проверка…'];const iv=setInterval(()=>{p+=4;const fp=$('#fprog');if(fp)fp.innerHTML=`<div class="u-help">${st[Math.min(2,Math.floor(p/34))]} ${p}%</div><div class="u-bar"><i style="width:${p}%"></i></div>`;if(p>=100){clearInterval(iv);U.flashing=false;U.ver=F[1];U.flog.push(F[1]);U.cfg=clone(UDEF);U.saved=clone(UDEF);uReboot('Прошивка обновлена до версии '+F[1]+'. Загрузка настроек по умолчанию…')}},90)};
+ const older=+F[1]<+U.ver;U.pop={type:'confirm',title:'Обновление BIOS',yesl:'Обновить',html:(older?`<b style="color:#fbbf24">Версия файла (${F[1]}) старее текущей (${U.ver}). Будет выполнено понижение версии.</b><br>`:`Обновить BIOS с ${U.ver} до ${F[1]}?<br>`)+'Не выключайте питание. После обновления будут загружены настройки по умолчанию.',ok:go};urender()}
+function uOpen(it){const c=U.cfg;if(it.dis){U.help=it.h;return}
+ if(it.t==='sub'){U.stack.push(it.s);return}
+ if(it.t==='opt'){U.pop={type:'list',title:uName(it),opts:it.o,idx:it.o.indexOf(c[it.k]),ok:i=>{c[it.k]=it.o[i]}};return}
+ if(it.t==='boot'){const e=uEff(c);U.pop={type:'list',title:it.l,opts:e.map(d=>UDEV[d][0]),idx:it.i,ok:j=>{const n=e.slice();[n[it.i],n[j]]=[n[j],n[it.i]];c.boot=n.concat(c.boot.filter(d=>!n.includes(d)))}};return}
+ if(it.t==='act')uAct(it.a)}
+function uClick(e){if(S.s3d)return;const t=e.target;const c=U.cfg;
+ const po=t.closest('[data-po]');if(po){const p=U.pop;U.pop=null;p.ok(+po.dataset.po);urender();return}
+ if(t.closest('[data-pc]')){const p=U.pop;U.pop=null;p&&p.after&&p.after();urender();return}
+ if(t.closest('[data-py]')){const p=U.pop;U.pop=null;p.ok();urender();return}
+ const f=t.closest('[data-file]');if(f){uFlash(+f.dataset.file);return}
+ const u=t.closest('[data-u]');if(u){const a=u.dataset.u;if(a==='mode'){U.mode=U.mode==='ez'?'adv':'ez'}else if(a==='save')uAct('save');else if(a==='def')uAct('defaults');else if(a==='back')U.stack.pop();else if(a==='flashExit'){if(U.flashing)return;U.screen='setup';U.finfo=''}urender();return}
+ const tb=t.closest('[data-tab]');if(tb){U.tab=tb.dataset.tab;U.stack=[];urender();return}
+ const ez=t.closest('[data-ez]');if(ez){if(ez.dataset.ez==='xmp'){const o=['Disabled','Profile 1','Profile 2'];U.pop={type:'list',title:'X.M.P.',opts:o,idx:c.aiot.startsWith('XMP')?o.indexOf(c.aiot.replace('XMP ','')):0,ok:i=>{c.aiot=i?'XMP '+o[i]:'Auto'}}}else U.pop={type:'list',title:'CPU Fan Profile',opts:FANS.slice(0,4),idx:FANS.indexOf(c.cpufan),ok:i=>{c.cpufan=FANS[i]}};urender();return}
+ const up=t.closest('[data-up],[data-dn]');if(up){const e2=uEff(c);const i=+(up.dataset.up??up.dataset.dn),j=up.dataset.up!=null?i-1:i+1;if(j>=0&&j<e2.length){[e2[i],e2[j]]=[e2[j],e2[i]];c.boot=e2.concat(c.boot.filter(d=>!e2.includes(d)))}urender();return}
+ const r=t.closest('[data-ui]');if(r){const it=uItems()[+r.dataset.ui];if(it&&it.t!=='ro'&&it.t!=='h'){uOpen(it);urender()}}}
+function uHover(e){const r=e.target.closest('[data-ui]');if(!r)return;const it=uItems()[+r.dataset.ui];if(it&&it.h){U.help=it.h;const h=$('#uhelp');if(h)h.textContent=it.h}}
+function uKey(e){if(S.s3d||U.screen!=='setup')return;const k=e.key;if(['F5','F7','F10','Escape'].includes(k))e.preventDefault();
+ if(U.pop){if(k==='Escape'){U.pop=null;urender()}return}
+ if(k==='F7'){U.mode=U.mode==='ez'?'adv':'ez'}else if(k==='F10')uAct('save');else if(k==='F5')uAct('defaults');else if(k==='Escape'&&U.stack.length)U.stack.pop();else return;urender()}
+const U_ITEMS=[['Прошивка обновлена до версии 3611',(s,v)=>v==='3611'],['Ai Overclock Tuner: XMP Profile 1',s=>s.aiot==='XMP Profile 1'],['SVM Mode: Enabled',s=>s.svm==='Enabled'],['TPM Device Selection: Firmware TPM',s=>s.tpm==='Firmware TPM'],['Launch CSM: Disabled',s=>s.csm==='Disabled'],['Secure Boot state: Enabled',s=>uSB(s)],['Boot Option #1: UEFI: Kingston (флешка в режиме UEFI)',s=>uEff(s)[0]==='uusb'],['ErP: Disabled и Power On By PCI-E: Enabled',s=>s.erp==='Disabled'&&s.wol==='Enabled'],['CPU Fan Profile: Silent',s=>s.cpufan==='Silent']];
+const U_CLEAN=['smt','audio','wifi','bt','ratio','fast'];
+const U_WHY=['Включён CSM: Secure Boot работает только в режиме UEFI без модуля совместимости','Не установлен дискретный модуль TPM','Не включён профиль XMP','Отключена аппаратная виртуализация SVM'];
+function sc3(){if(!S.s3d)return 0;const s=U.saved;let v=U_ITEMS.filter(x=>x[1](s,U.ver)).length*2;if(near(S.s3q.q1,3600,1))v+=2;if(near(S.s3q.q2,41,.5))v+=2;if(S.s3q.q3===0)v+=2;if(U_CLEAN.every(k=>s[k]===UDEF[k]))v+=1;return v}
+
+/* ======================= ЭТАП 4: КЕЙСЫ ======================= */
+const CASES=[
+ {t:'Сбрасываются дата и настройки',d:'При каждом включении после отключения ПК от сети появляется «CMOS Checksum Error – Defaults Loaded. Press F1 to continue», дата сбрасывается на 01.01.2009, настройки — к заводским.',c:['Неисправен блок питания','Разряжена батарейка CMOS (CR2032)','Повреждена файловая система диска','Вирус в загрузочном секторе'],a:['Переустановить операционную систему','Обновить драйверы чипсета в Windows','Заменить батарейку, выставить дату, время и параметры, сохранить (F10)','Включить Fast Boot'],ok:[1,2],e:'Батарейка питает CMOS и часы RTC; при её разряде настройки теряются при каждом отключении от сети.'},
+ {t:'Синий экран после смены режима SATA',d:'Для ускорения SSD администратор переключил SATA Mode с IDE на AHCI в уже установленной Windows. Теперь при загрузке — синий экран INACCESSIBLE_BOOT_DEVICE.',c:['Windows установлена в режиме IDE и не загружает драйвер AHCI при старте','Сгорел SSD','Включён Secure Boot','Неверная дата в BIOS'],a:['Отформатировать диск и переустановить драйверы','Вернуть IDE, загрузить Windows, включить загрузку драйвера AHCI (безопасный режим или реестр), затем выбрать AHCI','Отключить TPM','Включить XMP-профиль'],ok:[0,1],e:'Драйвер storahci не загружается на раннем этапе, поэтому ОС «не видит» загрузочный диск. Сначала включают драйвер, затем меняют режим.'},
+ {t:'Ошибка установщика Windows: стиль разделов GPT',d:'Установка Windows с флешки на новый SSD: «Установка Windows на данный диск невозможна. Выбранный диск имеет стиль разделов GPT». В Boot Menu флешка встречается дважды.',c:['Диск неисправен','Недостаточно оперативной памяти','Установщик загружен в режиме Legacy (через CSM), а диск размечен в GPT','Отключена аппаратная виртуализация'],a:['Сменить режим SATA на IDE','Включить ErP','Удалить все разделы и конвертировать диск в MBR','Загрузиться с пункта «UEFI: <флешка>» (или отключить CSM)'],ok:[2,3],e:'Режим загрузки определяет стиль разделов: UEFI ↔ GPT, Legacy ↔ MBR. Правильно загрузить установщик в UEFI; конвертация в MBR — шаг назад и лишает Secure Boot.'},
+ {t:'Проверка совместимости с Windows 11',d:'На ПК с AMD Ryzen 5 5600X утилита проверки сообщает: «ПК должен поддерживать безопасную загрузку» и «TPM 2.0 не найден». Отдельного модуля TPM на плате нет.',c:['Процессор не поддерживает Windows 11','Мало места на системном диске','Устаревший драйвер видеокарты','В UEFI выбран Discrete TPM (модуль не установлен), включён CSM, Secure Boot отключён'],a:['Купить и установить дискретный модуль TPM','Включить Firmware TPM, отключить CSM, включить Secure Boot (системный диск — GPT)','Включить Hyper-Threading','Выполнить Clear CMOS'],ok:[3,1],e:'В процессорах AMD есть встроенный fTPM 2.0 — его достаточно включить. Secure Boot требует отключения CSM и разметки GPT.'},
+ {t:'Не запускается виртуальная машина',d:'VirtualBox при запуске 64-разрядной ВМ сообщает: «VT-x is disabled in the BIOS for all CPU modes (VERR_VMX_MSR_ALL_VMX_DISABLED)». Процессор — Intel Core i5-10400.',c:['Недостаточно ОЗУ для ВМ','Повреждён образ ISO','Аппаратная виртуализация отключена в прошивке','Включён Secure Boot'],a:['Включить Intel Virtualization Technology в Advanced → CPU Configuration и сохранить','Переустановить VirtualBox','Отключить Hyper-Threading','Переключить SATA в IDE'],ok:[2,0],e:'Сообщение прямо указывает: VT-x выключена в прошивке. Её включают в настройках процессора.'}];
+function sc4(){if(!S.s4d)return 0;let v=0;CASES.forEach((c,i)=>{const a=S.s4[i]||{};if(a.c===c.ok[0])v+=2;if(a.a===c.ok[1])v+=2});return v}
+
+/* ======================= ЭТАП 5: ТЕСТ ======================= */
+const TEST=[
+ ['Что такое POST?',['Протокол передачи данных по сети','Самотестирование оборудования при включении','Режим энергосбережения','Тип разметки диска'],1,'Power-On Self-Test выполняется до загрузки ОС.'],
+ ['Где классический BIOS хранит настройки?',['На жёстком диске','В оперативной памяти','В CMOS-памяти с питанием от батарейки','В процессоре'],2,'CMOS-память питается от батарейки CR2032.'],
+ ['Какая клавиша обычно сохраняет настройки и перезагружает ПК?',['F1','F5','F9','F10'],3,'F10 — Save & Exit; F9 (у ASUS UEFI — F5) — значения по умолчанию.'],
+ ['В каком формате вводится дата в BIOS Setup в стиле AMI?',['ДД.ММ.ГГГГ','ММ/ДД/ГГГГ','ГГГГ-ММ-ДД','ДД/ММ/ГГ'],1,'Месяц/день/год — американский формат.'],
+ ['Максимальный объём диска с разметкой MBR (сектор 512 байт)?',['2 ТиБ','128 ГБ','16 ТиБ','не ограничен'],0,'32-разрядные адреса секторов × 512 байт = 2 ТиБ.'],
+ ['Где находится загрузчик ОС в системе с UEFI?',['В первом секторе диска','На разделе ESP (FAT32) в виде файла .efi','В микросхеме CMOS','В разделе MSR'],1,'Например, \\EFI\\Microsoft\\Boot\\bootmgfw.efi.'],
+ ['Что необходимо для работы Secure Boot?',['Включённый CSM','Режим UEFI без CSM и установленные ключи (PK)','Режим SATA IDE','Включённый XMP'],1,'С CSM проверка подписей невозможна; без PK — режим Setup.'],
+ ['Что такое fTPM?',['Внешний модуль TPM','TPM, реализованный в прошивке процессора AMD','Файловая система UEFI','Профиль разгона памяти'],1,'У Intel аналог называется PTT.'],
+ ['Какой режим SATA рекомендуется для SSD в современной ОС?',['IDE','AHCI','Legacy','PIO'],1,'AHCI даёт NCQ, горячую замену и TRIM.'],
+ ['Что делает профиль XMP?',['Включает виртуализацию','Задаёт паспортные частоту, тайминги и напряжение памяти','Ускоряет загрузку ОС','Шифрует диск'],1,'Без XMP память работает на базовой частоте JEDEC.'],
+ ['Почему при включённом ErP не работает Wake-on-LAN?',['ErP отключает дежурное питание сетевой карты','ErP отключает сетевой драйвер Windows','ErP запрещает DHCP','ErP включает Secure Boot'],0,'В режиме ErP потребление выключенного ПК не более 1 Вт.'],
+ ['Как сбросить забытый пароль BIOS на настольном ПК?',['Переустановить Windows','Нажать F9 при загрузке','Выполнить Clear CMOS (перемычка или батарейка)','Отключить монитор'],2,'Сброс CMOS возвращает заводские настройки, включая пароль.'],
+ ['На какой фазе UEFI выбирается загрузочное устройство?',['SEC','PEI','DXE','BDS'],3,'BDS — Boot Device Selection.'],
+ ['Какая прошивка обеспечивает UEFI в виртуальных машинах QEMU/KVM?',['SeaBIOS','OVMF (TianoCore EDK II)','Award BIOS','CSM'],1,'SeaBIOS — Legacy BIOS по умолчанию в QEMU.'],
+ ['Что происходит с настройками после обновления прошивки?',['Сохраняются полностью','Сбрасываются к значениям по умолчанию','Переносятся в Windows','Удаляется ОС'],1,'Поэтому настройку выполняют после обновления.']];
+function sc5(){if(!S.s5d)return 0;return r1(TEST.filter((q,i)=>S.s5[i]===q[2]).length*20/15)}
+
+/* ======================= БАЛЛЫ И НАВИГАЦИЯ ======================= */
+const SC={s1:sc1,s2:sc2,s3:sc3,s4:sc4,s5:sc5};
+const total=()=>r1(sc1()+sc2()+sc3()+sc4()+sc5());
+const done={s1:()=>S.s1d,s2:()=>S.s2d,s3:()=>S.s3d,s4:()=>S.s4d,s5:()=>S.s5d};
+function grade(t){return t>=85?[5,'отлично','#16a34a']:t>=70?[4,'хорошо','#0d9488']:t>=50?[3,'удовлетворительно','#d97706']:[2,'неудовлетворительно','#e11d48']}
+function nav(){$('#nav').innerHTML=STG.map((s,i)=>{const d=done[s.id]&&done[s.id]();const dis=!S.t0&&s.id!=='intro';
+ return `<button class="st${S.cur===s.id?' on':''}${d?' done':''}" data-st="${s.id}"${dis?' disabled':''}><span class="n">${d?'✓':s.id==='res'?'★':i===0?'i':i}</span><div><b>${s.n}</b><small>${s.pts?`${s.min} мин · ${SC[s.id]()} / ${s.pts} б.`:s.id==='res'?'итог и отчёт':'≈ 5 мин'}</small></div></button>`}).join('');
+ $('#score').textContent=`${total()} / 100`;$('#who').innerHTML=S.name?`<b>${esc(S.name)}</b><br>${esc(S.group)}`:''}
+$('#nav').onclick=e=>{const b=e.target.closest('[data-st]');if(b&&!b.disabled)go(b.dataset.st)};
+function go(id){S.cur=id;render();main.scrollTop=0}
+function render(){nav();main.innerHTML=VIEWS[S.cur]();BIND[S.cur]&&BIND[S.cur]();if(S.fin&&S.cur!=='res')main.querySelectorAll('button:not(.keep),input,select').forEach(x=>x.disabled=true)}
+function nextBtn(id){const i=STG.findIndex(s=>s.id===id);const n=STG[i+1];return n?`<button class="btn o keep" onclick="go('${n.id}')">Далее: ${n.n} →</button>`:''}
+function head(i,t,min,pts){return `<div class="kicker">Этап ${i} из 5 · ≈ ${min} мин · ${pts} баллов</div><h1>${t}</h1>`}
+setInterval(()=>{if(!S.t0)return;const now=S.fin?S.tEnd:Date.now();const rem=Math.max(0,S.limit-Math.floor((now-S.t0)/1000));const el=$('#timer');el.textContent=`${String(Math.floor(rem/60)).padStart(2,'0')}:${String(rem%60).padStart(2,'0')}`;el.className='timer'+(rem<=300?' crit':rem<=900?' warn':'');if(rem<=0&&!S.fin)finish(true)},500);
+function finish(byTime){S.fin=true;S.tEnd=Date.now();go('res');modal(`<div style="font-size:60px">${byTime?'⏰':'🏁'}</div><h2>${byTime?'Время вышло!':'Работа сдана'}</h2><p>Ответы зафиксированы. Результат: <b>${total()} из 100</b>. Несданные этапы оценены в 0 баллов.</p><div class="row" style="justify-content:center"><button class="btn keep" onclick="modal()">Посмотреть результаты</button></div>`)}
+function modal(h){const m=$('#modal');if(!h){m.classList.remove('on');return}$('#modalC').innerHTML=h;m.classList.add('on')}
+window.addEventListener('beforeunload',e=>{if(S.t0&&!S.fin){e.preventDefault();e.returnValue=''}});
+const VIEWS={},BIND={};
+const resTag=(v,max)=>`<span class="res ${v>=max*.8?'ok':v>=max*.5?'mid':'bad'}">`;
+
+/* ---------- ИНСТРУКЦИЯ ---------- */
+VIEWS.intro=()=>`<div class="card"><div class="kicker">Практическая работа · 90 минут · повышенный уровень сложности</div>
+<h1>Освоение параметров BIOS и UEFI на эмуляторах</h1>
+<p><b>Цель работы:</b> научиться диагностировать результат POST, настраивать параметры классического BIOS Setup с клавиатуры и графического UEFI с учётом зависимостей между параметрами, обновлять прошивку и устранять типовые неисправности.</p>
+<h3>Ход работы</h3>
+<table class="rt"><tr><th>№</th><th>Этап</th><th>Время</th><th>Баллы</th></tr>
+<tr><td>1</td><td>POST: расшифровать звуковые сигналы и сообщения</td><td>10 мин</td><td>10</td></tr>
+<tr><td>2</td><td>Эмулятор BIOS (только клавиатура): 12 параметров по заданию + данные мониторинга</td><td>25 мин</td><td>25</td></tr>
+<tr><td>3</td><td>Эмулятор UEFI: обновление прошивки, XMP, TPM, CSM, Secure Boot, Wake-on-LAN…</td><td>25 мин</td><td>25</td></tr>
+<tr><td>4</td><td>Диагностика: 5 неисправностей — причина и решение</td><td>15 мин</td><td>20</td></tr>
+<tr><td>5</td><td>Итоговый тест из 15 вопросов</td><td>10 мин</td><td>20</td></tr></table>
+<div class="hint">⚠️ <b>Правила.</b> Каждый этап сдаётся <b>один раз</b> кнопкой «Сдать этап». В эмуляторах оценивается только <b>сохранённая</b> конфигурация. Изменение параметров, не указанных в задании, снижает оценку. Правильные ответы в эмуляторах не подсвечиваются — проверяйте себя сами. Через 90 минут работа сдаётся автоматически.</div>
+<div class="form" style="margin-top:16px">${S.t0?`<h2>Работа начата</h2><p>Студент: <b>${esc(S.name)}</b> · группа <b>${esc(S.group)}</b></p><button class="btn keep" onclick="go('s1')">К этапу 1 →</button>`:
+`<h2>Регистрация</h2><label>Фамилия и имя</label><input type="text" id="fn" placeholder="Иванов Иван"><label>Группа</label><input type="text" id="fg" placeholder="ИСП-21"><button class="btn" id="startB">▶ Начать работу (90:00)</button>`}</div></div>`;
+BIND.intro=()=>{const b=$('#startB');if(b)b.onclick=()=>{const n=$('#fn').value.trim(),g=$('#fg').value.trim();if(!n||!g){$('#fn').style.borderColor=n?'':'#e11d48';$('#fg').style.borderColor=g?'':'#e11d48';return}S.name=n;S.group=g;S.t0=Date.now();go('s1')}};
+
+/* ---------- ЭТАП 1 ---------- */
+VIEWS.s1=()=>`<div class="card">${head(1,'POST: звуковые сигналы и сообщения',10,10)}
+<div class="task"><b>Ситуация.</b> Вы дежурный техник. На пяти компьютерах при включении нет изображения — слышны только сигналы (плата с Award BIOS). Ещё на пяти ПК при загрузке появились сообщения POST. Определите неисправность для каждого случая. Каждый верный ответ — 1 балл.</div>
+<h2>Часть 1. Звуковые сигналы</h2><p>Нажмите ▶, чтобы прослушать сигнал. Под кнопкой — запись сигнала: ▬ длинный, ● короткий.</p>
+${BEEPS.map((b,i)=>{const v=S.s1['b'+i];const st=S.s1d?(v===b[1]?'okf':'badf'):'';return `<div class="q"><div class="row" style="margin:0;align-items:center"><button class="btn g" data-beep="${b[0]}">▶ ПК №${i+1}</button><span class="beepvis">${b[0].split('').map(c=>c==='L'?'▬':'●').join(' ')}${b[0].length>4?' …':''}</span></div>
+<select data-s1="b${i}" class="${st}" style="margin-top:12px;width:100%"><option value="">— неисправность —</option>${BEEPOPT.map((o,j)=>`<option value="${j}"${v===j?' selected':''}>${o}</option>`).join('')}</select>${S.s1d&&v!==b[1]?`<div class="fb">Верно: ${BEEPOPT[b[1]]}</div>`:''}</div>`}).join('')}
+<h2>Часть 2. Сообщения POST</h2>
+${MSGS.map((m,i)=>{const v=S.s1['m'+i];const st=S.s1d?(v===m[1]?'okf':'badf'):'';return `<div class="q"><pre class="postmsg">${esc(m[0])}</pre><select data-s1="m${i}" class="${st}" style="width:100%"><option value="">— значение сообщения —</option>${MSGOPT.map((o,j)=>`<option value="${j}"${v===j?' selected':''}>${o}</option>`).join('')}</select>${S.s1d&&v!==m[1]?`<div class="fb">Верно: ${MSGOPT[m[1]]}</div>`:''}</div>`}).join('')}
+<div class="row">${S.s1d?`${resTag(sc1(),10)}Этап 1: ${sc1()} / 10</span>`:`<button class="btn" id="chk1">Сдать этап 1</button>`}${nextBtn('s1')}</div></div>`;
+BIND.s1=()=>{main.querySelectorAll('[data-beep]').forEach(b=>b.onclick=()=>beep(b.dataset.beep));main.querySelectorAll('[data-s1]').forEach(s=>{s.onchange=()=>S.s1[s.dataset.s1]=s.value===''?undefined:+s.value;if(S.s1d)s.disabled=true});
+ const c=$('#chk1');if(c)c.onclick=()=>{const m=10-Object.values(S.s1).filter(v=>v!==undefined).length;if(m&&!confirm(`Без ответа: ${m}. Сдать этап?`))return;S.s1d=true;render()}};
+
+/* ---------- ЭТАП 2 ---------- */
+VIEWS.s2=()=>`<div class="card">${head(2,'Эмулятор BIOS Setup (управление только с клавиатуры)',25,25)}
+<div class="task"><b>Ситуация.</b> Компьютеры класса готовят к установке ОС с USB-флешки и к работе с виртуальными машинами. После замены батарейки CMOS все настройки сброшены к заводским. Выполните настройку:
+<ol class="tl"><li>Установите системную дату <b>27 октября 2026 г.</b> и время <b>09:00:00</b>.</li>
+<li>Переключите SATA-контроллер в режим, поддерживающий NCQ, горячую замену и TRIM (ОС ещё не установлена).</li>
+<li>Включите аппаратную виртуализацию процессора.</li>
+<li>Первым загрузочным устройством сделайте USB-флешку, вторым — системный SSD объёмом 500 ГБ.</li>
+<li>Запретите загрузку по сети (PXE), но сетевая карта должна продолжать работать.</li>
+<li>Отключите встроенный звуковой контроллер — в классе используются USB-гарнитуры.</li>
+<li>ПК класса включаются общим рубильником: компьютер должен включаться сам при появлении питания.</li>
+<li>Установите пароль администратора BIOS: <code>Kl@ss2026</code></li>
+<li>Цифровая клавиатура должна быть включена при загрузке; отключите ускоренную загрузку, чтобы успевать войти в Setup.</li>
+<li>Сохраните настройки и убедитесь, что ПК загружается с флешки.</li></ol>
+Остальные параметры не изменяйте. Внимательно читайте подсказки справа на экране BIOS.</div>
+<div class="hint">⌨ Нажмите на экран эмулятора, чтобы он получил фокус (рамка станет оранжевой), и управляйте клавишами: ←→ ↑↓ Enter Esc + − F1 F9 F10, на экране POST — Del. Если функциональные клавиши перехватывает ноутбук, используйте экранные кнопки под эмулятором.</div>
+<div id="bwrap" tabindex="0"></div>
+<div class="vkeys">${['Esc','F1','F9','F10','Del','Enter','↑','↓','←','→','+','−'].map(k=>`<button class="btn o" data-vk="${k}">${k}</button>`).join('')}<button class="btn r" id="clrcmos" title="Сброс настроек и пароля">⟲ Clear CMOS</button></div>
+<p id="bst" style="color:var(--muted)"></p>
+<h2>Вопросы по данным BIOS (по 2 балла)</h2>
+${B_Q.map(q=>{const v=S.s2q[q[0]]??'';const st=S.s2d?(near(v,q[2],q[3])?'okf':'badf'):'';return `<div class="q"><p>${q[1]}</p><input type="text" data-q2="${q[0]}" value="${esc(v)}" class="${st}" style="width:260px">${S.s2d&&!near(v,q[2],q[3])?` <span style="color:var(--ok)">верно: ${q[2]}</span>`:''}</div>`}).join('')}
+${S.s2d?`<h2>Проверка сохранённой конфигурации</h2><table class="rt">${B_ITEMS.map(x=>`<tr><td>${x[1](B.saved)?'✅':'❌'}</td><td>${x[0]}</td><td>${x[1](B.saved)?'1,5':'0'}</td></tr>`).join('')}<tr><td>${B_CLEAN.every(k=>B.saved[k]===BDEF[k])?'✅':'❌'}</td><td>Лишние параметры не изменены</td><td>${B_CLEAN.every(k=>B.saved[k]===BDEF[k])?'1':'0'}</td></tr></table>`:''}
+<div class="row">${S.s2d?`${resTag(sc2(),25)}Этап 2: ${sc2()} / 25</span>`:`<button class="btn" id="chk2">Сдать этап 2</button>`}${nextBtn('s2')}</div></div>`;
+BIND.s2=()=>{const w=$('#bwrap');brender();w.onkeydown=bKey;w.onclick=()=>{if(!$('#binp'))w.focus()};
+ main.querySelectorAll('[data-vk]').forEach(b=>b.onclick=()=>{const m={'↑':'ArrowUp','↓':'ArrowDown','←':'ArrowLeft','→':'ArrowRight','Del':'Delete','−':'-'};const k=m[b.dataset.vk]||b.dataset.vk;const inp=$('#binp');if(inp&&(k==='Enter'||k==='Escape')){inp.dispatchEvent(new KeyboardEvent('keydown',{key:k}));return}bKey({key:k});w.focus()});
+ $('#clrcmos').onclick=()=>{if(!confirm('Выполнить сброс CMOS? Все настройки, дата, время и пароли вернутся к заводским.'))return;B.cfg=clone(BDEF);B.saved=clone(BDEF);B.screen='setup';B.pop=null;B.tab=0;B.sub=null;bFirst();brender()};
+ main.querySelectorAll('[data-q2]').forEach(i=>{i.oninput=()=>S.s2q[i.dataset.q2]=i.value;if(S.s2d)i.disabled=true});
+ if(S.s2d){main.querySelectorAll('[data-vk],#clrcmos').forEach(b=>b.disabled=true)}
+ const c=$('#chk2');if(c)c.onclick=()=>{const un=JSON.stringify(B.cfg)!==JSON.stringify(B.saved);if(!confirm((un?'В эмуляторе есть НЕСОХРАНЁННЫЕ изменения — они не будут учтены.\n':'')+'Сдать этап 2? Оценивается сохранённая конфигурация.'))return;S.s2d=true;render()};
+ if(!S.s2d)setTimeout(()=>w.focus({preventScroll:true}),50)};
+
+/* ---------- ЭТАП 3 ---------- */
+VIEWS.s3=()=>`<div class="card">${head(3,'Эмулятор UEFI Setup',25,25)}
+<div class="task"><b>Ситуация.</b> ПК на AMD Ryzen 5 5600X готовят к установке Windows 11 с USB-флешки (диск — GPT), к работе с WSL 2 и Hyper-V и к удалённому включению по сети. Выполните настройку:
+<ol class="tl"><li>Обновите прошивку платы до самой новой версии с флешки (на флешке несколько файлов — выберите подходящий).</li>
+<li>Модули DDR4-3600 работают на 2133 МГц — включите паспортный профиль памяти (профиль 1).</li>
+<li>Включите аппаратную виртуализацию процессора.</li>
+<li>Включите встроенный модуль TPM 2.0 (дискретного модуля на плате нет).</li>
+<li>Включите безопасную загрузку: состояние Secure Boot должно стать <b>Enabled</b>.</li>
+<li>Первым загрузочным устройством сделайте флешку <b>в режиме UEFI</b>.</li>
+<li>Обеспечьте возможность включения ПК по сети (Wake-on-LAN).</li>
+<li>Установите тихий профиль вентилятора процессора.</li>
+<li>Сохраните изменения (F10).</li></ol>
+<b>Учтите:</b> между параметрами есть зависимости, а порядок действий имеет значение. Остальные параметры не изменяйте.</div>
+<div class="hint">🖱 Управление мышью. Клавиши: F7 — EZ/Advanced Mode, F10 — сохранить, F5 — по умолчанию, Esc — назад. Неактивные (серые) пункты нельзя изменить, пока не выполнено условие — наведите на пункт и прочитайте подсказку.</div>
+<div id="uwrap" tabindex="0"></div>
+<h2>Вопросы (по 2 балла)</h2>
+<div class="q"><p>1. Фактическая частота памяти после настройки, МГц</p><input type="text" data-q3="q1" value="${esc(S.s3q.q1??'')}" class="${S.s3d?(near(S.s3q.q1,3600,1)?'okf':'badf'):''}" style="width:260px">${S.s3d&&!near(S.s3q.q1,3600,1)?' <span style="color:var(--ok)">верно: 3600</span>':''}</div>
+<div class="q"><p>2. Температура процессора по данным раздела Monitor, °C</p><input type="text" data-q3="q2" value="${esc(S.s3q.q2??'')}" class="${S.s3d?(near(S.s3q.q2,41,.5)?'okf':'badf'):''}" style="width:260px">${S.s3d&&!near(S.s3q.q2,41,.5)?' <span style="color:var(--ok)">верно: 41</span>':''}</div>
+<div class="q"><p>3. Почему пункт OS Type в разделе Secure Boot изначально был недоступен?</p>${U_WHY.map((o,j)=>{const ch=S.s3q.q3===j;const st=S.s3d?(j===0?' ok':ch?' bad':''):(ch?' on':'');return `<button class="opt${st}" data-q3o="${j}">${o}</button>`}).join('')}</div>
+${S.s3d?`<h2>Проверка сохранённой конфигурации</h2><table class="rt">${U_ITEMS.map(x=>`<tr><td>${x[1](U.saved,U.ver)?'✅':'❌'}</td><td>${x[0]}</td><td>${x[1](U.saved,U.ver)?'2':'0'}</td></tr>`).join('')}<tr><td>${U_CLEAN.every(k=>U.saved[k]===UDEF[k])?'✅':'❌'}</td><td>Лишние параметры не изменены</td><td>${U_CLEAN.every(k=>U.saved[k]===UDEF[k])?'1':'0'}</td></tr></table>
+<div class="fb"><b>Правильная последовательность:</b> сначала обновить прошивку (B550-3611.CAP; файл B460 — для другой платы, 3202 — старая версия), так как после прошивки настройки сбрасываются. Затем: XMP Profile 1; SVM Enabled; Firmware TPM; CSM Disabled → OS Type: Windows UEFI mode → Install Default Secure Boot keys; Boot #1 «UEFI: Kingston…»; ErP Disabled → Power On By PCI-E Enabled; CPU Fan: Silent; F10.</div>`:''}
+<div class="row">${S.s3d?`${resTag(sc3(),25)}Этап 3: ${sc3()} / 25</span>`:`<button class="btn" id="chk3">Сдать этап 3</button>`}${nextBtn('s3')}</div></div>`;
+BIND.s3=()=>{const w=$('#uwrap');urender();w.onclick=uClick;w.onmouseover=uHover;w.onkeydown=uKey;
+ main.querySelectorAll('[data-q3]').forEach(i=>{i.oninput=()=>S.s3q[i.dataset.q3]=i.value;if(S.s3d)i.disabled=true});
+ main.querySelectorAll('[data-q3o]').forEach(b=>b.onclick=()=>{if(S.s3d)return;S.s3q.q3=+b.dataset.q3o;main.querySelectorAll('[data-q3o]').forEach(x=>x.classList.toggle('on',x===b))});
+ const c=$('#chk3');if(c)c.onclick=()=>{const un=JSON.stringify(U.cfg)!==JSON.stringify(U.saved);if(!confirm((un?'В эмуляторе есть НЕСОХРАНЁННЫЕ изменения — они не будут учтены.\n':'')+'Сдать этап 3?'))return;S.s3d=true;render()}};
+
+/* ---------- ЭТАП 4 ---------- */
+VIEWS.s4=()=>`<div class="card">${head(4,'Диагностика неисправностей',15,20)}
+<div class="task"><b>Задание.</b> Для каждой ситуации определите <b>причину</b> (2 балла) и <b>правильное действие</b> (2 балла).</div>
+${CASES.map((c,i)=>{const a=S.s4[i]||{};const st=(k,j)=>S.s4d?(c.ok[k]===j?' ok':a[k?'a':'c']===j?' bad':''):(a[k?'a':'c']===j?' on':'');
+ return `<div class="case"><h3><span>${i+1}</span>${c.t}</h3><p>${c.d}</p><b>Причина:</b><div class="opts">${c.c.map((o,j)=>`<button class="opt${st(0,j)}" data-cs="${i}" data-k="c" data-v="${j}">${o}</button>`).join('')}</div>
+ <b>Действие:</b><div class="opts">${c.a.map((o,j)=>`<button class="opt${st(1,j)}" data-cs="${i}" data-k="a" data-v="${j}">${o}</button>`).join('')}</div>${S.s4d?`<div class="fb">💡 ${c.e}</div>`:''}</div>`}).join('')}
+<div class="row">${S.s4d?`${resTag(sc4(),20)}Этап 4: ${sc4()} / 20</span>`:`<button class="btn" id="chk4">Сдать этап 4</button>`}${nextBtn('s4')}</div></div>`;
+BIND.s4=()=>{main.querySelectorAll('[data-cs]').forEach(b=>b.onclick=()=>{if(S.s4d)return;const i=b.dataset.cs;S.s4[i]=S.s4[i]||{};S.s4[i][b.dataset.k]=+b.dataset.v;main.querySelectorAll(`[data-cs="${i}"][data-k="${b.dataset.k}"]`).forEach(x=>x.classList.toggle('on',x===b))});
+ const c=$('#chk4');if(c)c.onclick=()=>{const m=CASES.filter((_,i)=>!S.s4[i]||S.s4[i].c==null||S.s4[i].a==null).length;if(m&&!confirm(`Не завершено ситуаций: ${m}. Сдать этап?`))return;S.s4d=true;render()}};
+
+/* ---------- ЭТАП 5 ---------- */
+VIEWS.s5=()=>`<div class="card">${head(5,'Итоговый тест',10,20)}
+<div class="task">15 вопросов, один правильный ответ в каждом.</div>
+${TEST.map((q,i)=>`<div class="q"><p>${i+1}. ${q[0]}</p><div class="opts">${q[1].map((o,j)=>{const st=S.s5d?(q[2]===j?' ok':S.s5[i]===j?' bad':''):(S.s5[i]===j?' on':'');return `<button class="opt${st}" data-q="${i}" data-v="${j}">${o}</button>`}).join('')}</div>${S.s5d?`<div class="fb">${S.s5[i]===q[2]?'✅':'❌'} ${q[3]}</div>`:''}</div>`).join('')}
+<div class="row">${S.s5d?`${resTag(sc5(),20)}Тест: ${sc5()} / 20</span>`:`<button class="btn" id="chk5">Сдать тест</button>`}${nextBtn('s5')}</div></div>`;
+BIND.s5=()=>{main.querySelectorAll('[data-q]').forEach(b=>b.onclick=()=>{if(S.s5d)return;const i=b.dataset.q;S.s5[i]=+b.dataset.v;main.querySelectorAll(`[data-q="${i}"]`).forEach(x=>x.classList.toggle('on',x===b))});
+ const c=$('#chk5');if(c)c.onclick=()=>{const m=TEST.filter((_,i)=>S.s5[i]==null).length;if(m&&!confirm(`Без ответа: ${m}. Сдать тест?`))return;S.s5d=true;render()}};
+
+/* ---------- РЕЗУЛЬТАТЫ ---------- */
+function used(){const e=Math.min(S.limit,Math.floor(((S.fin?S.tEnd:Date.now())-S.t0)/1000));return `${Math.floor(e/60)} мин ${e%60} с`}
+function details(){return {s1:S.s1d?`верных ответов ${sc1()}/10`:'не сдан',s2:S.s2d?`параметров ${B_ITEMS.filter(x=>x[1](B.saved)).length}/12, сохранений ${B.saves}`:'не сдан',s3:S.s3d?`параметров ${U_ITEMS.filter(x=>x[1](U.saved,U.ver)).length}/9, прошивка ${U.ver}`:'не сдан',s4:S.s4d?`полностью верных ситуаций ${CASES.filter((c,i)=>S.s4[i]&&S.s4[i].c===c.ok[0]&&S.s4[i].a===c.ok[1]).length}/5`:'не сдан',s5:S.s5d?`верных ${TEST.filter((q,i)=>S.s5[i]===q[2]).length}/15`:'не сдан'}}
+VIEWS.res=()=>{const T=total(),[gr,gt,gc]=grade(T),D=details();return `<div class="card"><div class="kicker">Итоги практической работы</div><h1>Результаты</h1>
+<div style="display:flex;gap:24px;align-items:center;flex-wrap:wrap;margin:10px 0 20px"><div class="grade" style="background:${gc}">${gr}</div><div><div class="score-big">${T}<span style="font-size:26pt;color:var(--muted)"> / 100</span></div><div style="margin-top:6px">Оценка: <b style="color:${gc}">${gr} (${gt})</b></div><div style="color:var(--muted);margin-top:4px">${esc(S.name)} · ${esc(S.group)} · время: ${used()}${S.fin?' · <b>работа сдана</b>':''}</div></div></div>
+<div class="tw"><table class="rt"><tr><th>Этап</th><th>Детали</th><th>Баллы</th></tr>
+${STG.filter(s=>s.pts).map(s=>`<tr><td><b>${s.n}</b></td><td style="color:var(--muted)">${D[s.id]}</td><td><b>${SC[s.id]()}</b> / ${s.pts}</td></tr>`).join('')}<tr><td colspan="2"><b>Итого</b></td><td><b>${T}</b> / 100</td></tr></table></div>
+${S.fin?'':`<div class="hint">Работа ещё не сдана. Несданные этапы оцениваются в 0 баллов.</div>`}
+<div class="row noprint">${S.fin?'':`<button class="btn r keep" id="finB">Сдать работу</button>`}<button class="btn g keep" id="dlB">⬇ Скачать отчёт (.txt)</button><button class="btn o keep" onclick="window.print()">🖨 Печать</button></div></div>`};
+BIND.res=()=>{const f=$('#finB');if(f)f.onclick=()=>{if(confirm('Сдать работу? После этого изменить ответы будет нельзя.'))finish(false)};
+ $('#dlB').onclick=()=>{const T=total(),[gr,gt]=grade(T),D=details();const txt=`ОТЧЁТ О ВЫПОЛНЕНИИ ПРАКТИЧЕСКОЙ РАБОТЫ
+Тема: Освоение на эмуляторах различных параметров BIOS, UEFI
+-----------------------------------------------------------
+Студент: ${S.name}
+Группа:  ${S.group}
+Дата:    ${new Date().toLocaleString('ru-RU')}
+Время работы: ${used()} из 90 мин
+Статус: ${S.fin?'работа сдана':'промежуточный отчёт'}
+-----------------------------------------------------------
+${STG.filter(s=>s.pts).map((s,i)=>`Этап ${i+1}. ${s.n}: ${SC[s.id]()} / ${s.pts}  (${D[s.id]})`).join('\n')}
+-----------------------------------------------------------
+ИТОГО: ${T} / 100    ОЦЕНКА: ${gr} (${gt})
+
+Сохранённая конфигурация BIOS:
+${B_ITEMS.map(x=>`  [${x[1](B.saved)?'+':'-'}] ${x[0]}`).join('\n')}
+Сохранённая конфигурация UEFI (версия прошивки ${U.ver}${U.flog.length?', прошивки: '+U.flog.join(' → '):''}):
+${U_ITEMS.map(x=>`  [${x[1](U.saved,U.ver)?'+':'-'}] ${x[0]}`).join('\n')}
+`;const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['﻿'+txt],{type:'text/plain;charset=utf-8'}));a.download=`Отчёт_BIOS_UEFI_${S.name.replace(/\s+/g,'_')||'студент'}.txt`;document.body.appendChild(a);a.click();a.remove()}};
+
+$('#theme').onclick=()=>{const d=document.documentElement;d.dataset.theme=d.dataset.theme==='dark'?'light':'dark';try{localStorage.setItem('bios-th',d.dataset.theme)}catch(e){}};
+try{const th=localStorage.getItem('bios-th');if(th)document.documentElement.dataset.theme=th}catch(e){}
+bFirst();render();
+</script>
+</body>
+</html>
