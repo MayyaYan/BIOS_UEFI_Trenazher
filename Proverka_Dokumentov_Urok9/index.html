@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Проверка документов о соответствии</title>
+<style>
+
+/* Практическая работа «Схемы сертификации: проверка документов о соответствии» — этап 1. Сцена 1280×720, основной кегль 22 pt. */
+:root{
+  --ink:#1B1E3A; --muted:#55597A; --pr:#3730A3; --pr-d:#2A2560; --pr-soft:#E8E7FA; --ac:#D9621C; --ac-d:#A6461A; --ac-soft:#FDEBDD;
+  --gn:#1F8A5B; --gn-soft:#E0F3EA; --bad:#B3261E; --bad-soft:#FBE6E3; --paper:#FFFDF8; --bg:#F3F2EC; --line:#D9D6CA;
+  --f:"Segoe UI","Roboto","Helvetica Neue",Arial,sans-serif;
+}
+*{box-sizing:border-box}
+html{font-size:22pt}
+html,body{height:100%}
+body{margin:0;background:#1A1840;color:var(--ink);font-family:var(--f);line-height:1.28;overflow:hidden}
+button,input{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:4px solid var(--ac);outline-offset:2px}
+[hidden]{display:none!important}
+h1,h2{margin:0;line-height:1.15}
+h1{font-size:1.4rem;color:var(--pr)}
+h2{font-size:1.15rem;color:var(--pr-d);margin-bottom:10px;flex:none}
+p{margin:0 0 8px}
+ul,ol{margin:0}
+svg{display:block}
+.viewport{position:fixed;inset:0;overflow:hidden}
+.stage{position:absolute;left:0;top:0;width:1280px;height:720px;transform-origin:0 0;background:var(--bg);overflow:hidden}
+
+/* шапка */
+.top{position:absolute;left:0;right:0;top:0;height:70px;background:var(--pr-d);color:#fff;display:flex;align-items:center;gap:16px;padding:0 24px}
+.logo{flex:none;width:46px;height:46px;color:#FFB98A}
+.logo svg{width:100%;height:100%}
+.top-t{flex:1;min-width:0;display:flex;align-items:baseline;gap:14px;white-space:nowrap;overflow:hidden}
+.top-t p{margin:0}
+.top-k{color:#FFB98A;font-weight:700}
+.top-n{font-weight:600;overflow:hidden;text-overflow:ellipsis}
+.rail{flex:none;display:flex;gap:8px;list-style:none;padding:0}
+.rail button{width:52px;height:52px;border-radius:50%;border:3px solid #6D66D6;background:transparent;color:#fff;font-weight:700;padding:0;line-height:1}
+.rail button.v{background:#4B44B8}
+.rail button.q{background:var(--gn);border-color:var(--gn)}
+.rail button.on{border-color:#FFB98A;box-shadow:0 0 0 3px #FFB98A}
+
+/* лента */
+.win{position:absolute;left:0;right:0;top:70px;bottom:70px;overflow:hidden}
+.track{display:flex;height:100%;transition:transform .45s cubic-bezier(.4,.1,.2,1);will-change:transform}
+.track.noanim{transition:none}
+.sl{flex:none;width:1280px;height:100%;padding:12px 34px 8px;overflow:hidden;display:flex;flex-direction:column}
+@media (prefers-reduced-motion:reduce){.track{transition:none}}
+.nav{position:absolute;left:0;right:0;bottom:0;height:70px;background:#fff;border-top:2px solid var(--line);display:flex;align-items:center;gap:14px;padding:0 24px}
+.cnt{flex:1;margin:0;text-align:center;color:var(--muted)}
+.nb{border:0;border-radius:12px;background:var(--pr);color:#fff;font-weight:700;padding:6px 22px;min-height:52px}
+.nb:disabled{opacity:.35;cursor:default}
+.nb.ghost{background:#fff;color:var(--pr);border:3px solid var(--pr)}
+
+/* общие */
+.t{color:var(--pr);font-weight:700;border-bottom:3px dotted var(--ac);cursor:help}
+.vcc span svg,.af-h .ic svg,.vl-h span svg{width:100%;height:100%}
+.lead{flex:none}
+.note{flex:none;background:var(--ac-soft);border-left:10px solid var(--ac);border-radius:12px;padding:10px 18px;margin:12px 0 0}
+.main{flex:none;margin:10px 0 0;display:flex;align-items:center;gap:14px;background:var(--pr-d);color:#fff;border-radius:12px;padding:6px 16px 6px 6px}
+.main b{flex:none;background:#FFB98A;color:var(--pr-d);border-radius:8px;padding:4px 12px}
+.ph{margin:0;position:relative;border-radius:16px;overflow:hidden;background:#ddd}
+.ph img{display:block;width:100%;height:100%;object-fit:cover}
+.ph figcaption{position:absolute;left:0;right:0;bottom:0;background:rgba(27,30,58,.82);color:#fff;padding:8px 14px;font-weight:600}
+
+
+.score{flex:none;margin:0;background:#FFB98A;color:var(--pr-d);font-weight:800;border-radius:30px;padding:4px 16px}
+.ic svg{width:100%;height:100%}
+
+/* заголовок задания */
+.th{display:flex;align-items:center;gap:16px;flex:none;margin-bottom:6px}
+.th h2{margin:0;flex:1;min-width:0}
+.chk{flex:none}
+.lead{margin:0 0 8px}
+.fb{flex:none;margin:8px 0 0;border-radius:12px;padding:6px 14px;background:#fff;border-left:10px solid var(--line)}
+.fb.ok{border-left-color:var(--gn)}.fb.mid{border-left-color:var(--ac)}.fb.bad{border-left-color:var(--bad)}
+.fb:empty{display:none}
+
+/* вступление */
+.intro{display:grid;grid-template-columns:1fr 470px;gap:24px;flex:1;min-height:0}
+.intro-l p{margin:0 0 10px}
+.sit{background:var(--paper);border-left:10px solid var(--ac);border-radius:14px;padding:12px 18px}
+.route{list-style:none;padding:0;margin:10px 0 0;display:flex;flex-direction:column;gap:6px}
+.route li{display:flex;align-items:center;gap:12px;background:#fff;border-radius:12px;padding:2px 12px 2px 2px}
+.pn{flex:none;width:46px;height:46px;border-radius:10px;background:var(--pr);color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center}
+.kit{display:flex;flex-direction:column;gap:10px}
+.kit-h{font-weight:800;color:var(--pr-d);margin:0}
+.kd{display:flex;gap:12px;align-items:center;background:#fff;border-radius:14px;padding:8px 12px;border-left:10px solid var(--pr)}
+.kd.d{border-left-color:var(--gn)}
+.kd b.l{flex:none;width:46px;height:46px;border-radius:50%;background:var(--pr-soft);color:var(--pr);display:flex;align-items:center;justify-content:center}
+.kd p{margin:0;line-height:1.2}
+
+/* задание 1: документ и элементы схемы */
+.t1{flex:1;min-height:0;display:grid;grid-template-columns:690px 1fr;gap:20px}
+.doc{background:var(--paper);border:3px solid var(--line);border-radius:14px;display:flex;flex-direction:column;min-height:0}
+.doc-h{flex:none;margin:0;padding:6px 14px;background:var(--pr-d);color:#fff;border-radius:11px 11px 0 0;font-weight:700;line-height:1.2}
+.doc-l{list-style:none;margin:0;padding:6px;overflow-y:auto;display:flex;flex-direction:column;gap:4px}
+.doc-l button{width:100%;display:flex;gap:10px;align-items:flex-start;text-align:left;background:#fff;border:3px solid transparent;border-radius:10px;padding:4px 10px 4px 4px;line-height:1.2}
+.doc-l button:hover{border-color:var(--pr-soft)}
+.doc-l button.hit{border-color:var(--pr);background:var(--pr-soft)}
+.doc-l .n{flex:none;min-width:40px;height:40px;border-radius:8px;background:var(--bg);color:var(--muted);font-weight:800;display:flex;align-items:center;justify-content:center}
+.side{display:flex;flex-direction:column;gap:6px;min-height:0}
+.el{width:100%;display:flex;align-items:center;gap:10px;text-align:left;background:#fff;border:3px solid var(--line);border-radius:12px;padding:4px 10px;line-height:1.15;min-height:52px}
+.el .nm{flex:1}
+.el .v{flex:none;font-weight:800;color:var(--pr);background:var(--pr-soft);border-radius:20px;padding:2px 12px}
+.el.on{border-color:var(--ac);box-shadow:0 0 0 3px var(--ac-soft)}
+.el.good{border-color:var(--gn);background:var(--gn-soft)}
+.el.badx{border-color:var(--bad);background:var(--bad-soft)}
+
+
+/* задание 2: сроки */
+.t2{flex:1;min-height:0;display:flex;flex-direction:column;gap:12px;justify-content:center}
+.dr{background:#fff;border-radius:14px;padding:10px 14px;border-left:10px solid var(--pr)}
+.dr.d{border-left-color:var(--gn)}
+.dr-q{margin:0 0 8px;line-height:1.25}
+.dr-q b{color:var(--pr-d)}
+.dr-c{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.dr-c label{font-weight:700}
+.dt{width:230px;border:3px solid var(--line);border-radius:10px;padding:4px 10px;background:#fff}
+.dt.good{border-color:var(--gn);background:var(--gn-soft)}.dt.badx{border-color:var(--bad);background:var(--bad-soft)}
+.tg{display:flex;gap:8px;margin-left:auto}
+.tg button,.ch button{border:3px solid var(--line);background:#fff;border-radius:24px;padding:4px 16px;font-weight:700}
+.tg button.sel,.ch button.sel{border-color:var(--pr);background:var(--pr);color:#fff}
+.tg button.good,.ch button.good{border-color:var(--gn);background:var(--gn);color:#fff}
+.tg button.badx,.ch button.badx{border-color:var(--bad);background:var(--bad);color:#fff}
+.tl{flex:1;min-height:0;display:flex;align-items:center}
+.tl svg{width:1212px;height:auto}
+
+/* задание 3: конструктор процедуры */
+.legend{display:flex;gap:22px;align-items:center;flex-wrap:wrap;margin:0 0 8px}
+.legend span{display:inline-flex;align-items:center;gap:8px}
+.legend .ic{width:40px;height:40px;border-radius:10px;padding:4px;color:#fff;display:inline-block}
+.L0{background:var(--ac)}.L1{background:var(--pr)}.L2{background:var(--gn)}
+.seq{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:5px;flex:1;min-height:0;justify-content:center}
+.seq li{display:flex;align-items:center;gap:8px;background:#fff;border-radius:12px;padding:3px 6px;border:3px solid transparent;border-left-width:10px;border-left-color:var(--line)}
+.seq li.l0{border-left-color:var(--ac)}.seq li.l1{border-left-color:var(--pr)}.seq li.l2{border-left-color:var(--gn)}
+.seq li.good{border-color:var(--gn);background:var(--gn-soft)}.seq li.badx{border-color:var(--bad);background:var(--bad-soft)}
+.mv{flex:none;width:46px;height:46px;border:0;border-radius:10px;background:var(--bg);color:var(--pr);font-weight:800;padding:0}
+.mv:disabled{opacity:.3}
+.sn{flex:none;width:40px;text-align:center;font-weight:800;color:var(--muted)}
+.st{flex:1;line-height:1.15}
+.ln{flex:none;width:52px;height:46px;border:3px solid var(--line);border-radius:10px;background:#fff;padding:3px;color:var(--muted)}
+.ln.sel{color:#fff;border-color:transparent}
+.ln.sel.L0x{background:var(--ac)}.ln.sel.L1x{background:var(--pr)}.ln.sel.L2x{background:var(--gn)}
+
+/* задание 4: решение о приёмке */
+.t4{flex:1;min-height:0;display:flex;flex-direction:column;gap:10px;justify-content:center}
+.pr{background:#fff;border-radius:14px;padding:8px 14px;border-left:10px solid var(--pr)}
+.pr-a{display:flex;align-items:center;gap:14px;margin-bottom:6px}
+.pr-a p{margin:0;flex:1;font-weight:700;color:var(--pr-d);line-height:1.2}
+.ch{display:flex;gap:8px;flex-wrap:wrap}
+.ch.docs button{width:58px;padding:4px 0}
+.pr-b{display:flex;align-items:center;gap:12px}
+.pr-b .lab{color:var(--muted)}
+
+/* итог */
+.res{flex:1;min-height:0;display:grid;grid-template-columns:420px 1fr;gap:20px}
+.rc{display:flex;flex-direction:column;gap:8px}
+.rci{display:flex;justify-content:space-between;gap:10px;background:#fff;border-radius:12px;padding:6px 14px;border-left:10px solid var(--pr)}
+.rci b{color:var(--pr-d)}
+.rci.tot{background:var(--pr-d);color:#fff;border-left-color:#FFB98A}.rci.tot b{color:#fff}
+.rx{display:flex;flex-direction:column;gap:8px;min-height:0}
+.rx textarea{flex:1;min-height:0;width:100%;resize:none;border:3px solid var(--line);border-radius:12px;padding:8px 12px;font:inherit;font-size:22pt;line-height:1.25;background:#fff}
+.rx-b{display:flex;gap:12px;flex-wrap:wrap}
+
+/* узкие экраны */
+html.free{font-size:17px}
+html.free .stage{position:fixed;width:100%;transform:none;display:flex;flex-direction:column}
+html.free .top{position:static;flex:none;height:auto;padding:8px 12px;flex-wrap:wrap;gap:8px}
+html.free .logo{width:34px;height:34px}
+html.free .top-t{flex-direction:column;gap:0;white-space:normal}
+html.free .rail{width:100%;justify-content:space-between;gap:4px}
+html.free .rail button{width:38px;height:38px;border-width:2px}
+html.free .win{position:static;flex:1;min-height:0}
+html.free .track{display:block;transform:none!important;height:100%}
+html.free .sl{width:auto;height:100%;overflow-y:auto;padding:12px 14px 20px}
+html.free .nav{position:static;flex:none;height:auto;padding:8px 10px;gap:8px;flex-wrap:wrap}
+html.free .nb{padding:6px 12px;min-height:44px}
+html.free .cnt{order:-1;flex-basis:100%}
+html.free .intro,html.free .t1,html.free .res{display:flex;flex-direction:column;flex:none}
+html.free .th{flex-wrap:wrap}
+html.free .doc-l{overflow:visible}
+html.free .tl svg{width:100%}
+html.free .tg{margin-left:0}
+html.free .dt{width:150px}
+html.free .seq li{flex-wrap:wrap}
+html.free .pr-a,html.free .pr-b{flex-wrap:wrap}
+html.free .rx textarea{font-size:17px;min-height:240px}
+
+/* задание 1: карточка элемента */
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chips .el{width:54px;min-height:0;height:54px;justify-content:center;padding:0;font-weight:800;border-radius:50%}
+.chips .el.set{background:var(--pr-soft)}
+.chips .el.on{border-color:var(--ac)}
+.card{flex:1;min-height:0;background:#fff;border-radius:14px;padding:10px 16px;border-top:10px solid var(--ac);display:flex;flex-direction:column;gap:6px;overflow-y:auto}
+.card p{margin:0;line-height:1.2}
+.card-k{color:var(--muted)}
+.card-n{font-weight:800;color:var(--pr-d);font-size:1.05rem}
+.card-v{font-weight:700;color:var(--pr)}
+.card-h.ok{color:var(--gn)}.card-h.bad{color:var(--bad)}.card-h.mid{color:var(--ac-d)}
+.card-b{display:flex;gap:8px}
+.card-b .none{flex:1}
+.side{gap:10px}
+.t3fb{margin:0 0 8px}
+.mv{height:40px;width:44px}
+.ln{height:40px;width:50px;padding:2px}
+.seq{gap:4px}
+.seq li{padding:1px 6px}
+.t3fb{padding:4px 12px;line-height:1.2}
+.rc{gap:6px}
+.rci{padding:4px 14px}
+.seq li{flex:none}
+.ln svg{width:100%;height:100%;display:block}
+
+</style>
+</head>
+<body>
+<div class="viewport" id="viewport">
+<div class="stage" id="stage">
+  <header class="top">
+    <span class="logo" data-ico="seal" aria-hidden="true"></span>
+    <div class="top-t"><p class="top-k" id="stK">Практическая работа</p><p class="top-n" id="stN">Проверка документов о соответствии</p></div>
+    <p class="score" id="score" aria-live="polite">0 из 60</p>
+    <ol class="rail" id="rail" aria-label="Задания"></ol>
+  </header>
+  <div class="win" id="win"><div class="track" id="track"></div></div>
+  <footer class="nav">
+    <button type="button" class="nb" id="prev">◀ Назад</button>
+    <p class="cnt" id="cnt" aria-live="polite"></p>
+    <button type="button" class="nb" id="next">Далее ▶</button>
+  </footer>
+</div>
+</div>
+
+<script>
+/* Практическая работа «Схемы сертификации: проверка документов о соответствии», этап 1.
+   Учебная ситуация на реальных опубликованных документах EKF. Результаты хранятся только в браузере. */
+(function(){
+"use strict";
+var $=function(s,r){return (r||document).querySelector(s)},$$=function(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s))};
+function shuffle(a){a=a.slice();for(var k=a.length-1;k>0;k--){var r=Math.floor(Math.random()*(k+1)),t=a[k];a[k]=a[r];a[r]=t}return a}
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+
+/* ---------- значки ---------- */
+function SI(p){return '<svg viewBox="0 0 48 48" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round">'+p+'</svg>'}
+var ICO={seal:SI('<circle cx="24" cy="20" r="13"/><path d="M18 20l4 4 8-8"/><path d="M16 30l-4 14 12-6 12 6-4-14"/>'),
+ person:SI('<circle cx="24" cy="15" r="8"/><path d="M8 44c0-10 7-16 16-16s16 6 16 16"/>'),
+ organ:SI('<path d="M8 42V18l16-10 16 10v24M4 42h40M16 42V26h16v16"/>'),
+ flask:SI('<path d="M18 6h12M20 6v12L9 38a3 3 0 0 0 3 4h24a3 3 0 0 0 3-4L28 18V6"/><path d="M14 30h20"/>'),
+ doc:SI('<path d="M12 5h17l9 9v29H12z"/><path d="M29 5v9h9M18 24h14M18 31h14M18 38h8"/>')};
+function ico(k){return '<span class="ic">'+(ICO[k]||'')+'</span>'}
+$$('[data-ico]').forEach(function(e){e.innerHTML=ICO[e.dataset.ico]||''});
+
+/* ---------- данные: реальные опубликованные документы (выписки) ---------- */
+var DOCS={
+ A:{t:'Сертификат соответствия ЕАЭС RU С-CN.АЖ56.В.00315/20',s:'сертификат на удлинители и сетевые фильтры EKF',kind:'c',
+    lines:['Сертификат соответствия ЕАЭС RU С-CN.АЖ56.В.00315/20',
+     'Заявитель: ООО «ЭЛЕКТРОРЕШЕНИЯ», Москва',
+     'Изготовитель: CECF Electric Trading (Shanghai) Co.Ltd, Китай',
+     'Орган по сертификации: ООО «Омега-Тест», аттестат аккредитации RA.RU.10АЖ56',
+     'Продукция: удлинители EKF моделей UBA, UKA, UKG, UBP, USRB, USR, USB, UBR; сетевые фильтры UFA, UFP. Серийный выпуск',
+     'Соответствует требованиям ТР ТС 004/2011 «О безопасности низковольтного оборудования»',
+     'Основание: протоколы испытаний № 14Х/Н-23.11/20 и № 15Х/Н-23.11/20 от 23.11.2020, испытательный центр Certification Group ИЛ HARD GROUP, аттестат RA.RU.21ЩИ01',
+     'Основание: акт анализа состояния производства № 161020/11/С от 22.10.2020',
+     'Схема сертификации: 1с',
+     'Срок действия: с 09.12.2020 по 08.12.2025 включительно']},
+ B:{t:'Декларация о соответствии ЕАЭС N RU Д-CN.РА01.В.51630/23',s:'декларация на кабель витая пара EKF TERACOM',kind:'d',
+    lines:['Декларация о соответствии ЕАЭС N RU Д-CN.РА01.В.51630/23',
+     'Заявитель: ООО «ЭЛЕКТРОРЕШЕНИЯ», Москва',
+     'Изготовитель: ZHEJIANG ZHAOLONG INTERCONNECT TECHNOLOGY CO., LTD., Китай',
+     'Продукция: кабель витая пара EKF серий TERACOM, TERACOM PRO, TERACOM CS',
+     'Соответствует требованиям ТР ЕАЭС 037/2016 «Об ограничении применения опасных веществ в изделиях электротехники и радиоэлектроники»',
+     'Декларация принята на основании протокола испытаний № 20230131/01 от 31.01.2023, выданного производственной лабораторией изготовителя',
+     'Схема декларирования: 1д',
+     'Дата регистрации: 02.02.2023. Декларация действительна по 01.02.2028 включительно']},
+ C:{s:'декларация на конвертеры протоколов EKF',src:'Декларация В: протокол от 13.11.2023; регистрация 14.11.2023; действительна по 13.11.2028 включительно; для продукции, изготовленной с 08.2023',a:'14.11.2023',b:'13.11.2028'},
+ D:{s:'декларация на таймеры EKF',src:'Декларация Г: протокол от 15.09.2020; аттестат лаборатории до 25.03.2021; регистрация 15.09.2020; действительна по 14.09.2025 включительно',a:'15.09.2020',b:'14.09.2025'}};
+DOCS.A.src='Сертификат А: протоколы от 23.11.2020; акт анализа производства от 22.10.2020; срок действия с 09.12.2020 по 08.12.2025 включительно';DOCS.A.a='09.12.2020';DOCS.A.b='08.12.2025';
+DOCS.B.src='Декларация Б: протокол от 31.01.2023; регистрация 02.02.2023; действительна по 01.02.2028 включительно';DOCS.B.a='02.02.2023';DOCS.B.b='01.02.2028';
+var LET={A:'А',B:'Б',C:'В',D:'Г'};
+
+/* задание 1: элементы схемы и строки-доказательства (0 — в документе нет) */
+var EL={
+ A:[['Третья сторона, принявшая решение',4,'Решение о выдаче сертификата принимает орган по сертификации — строка с ООО «Омега-Тест».'],
+    ['Объект и тип выпуска',5,'Объект и тип выпуска указаны в строке «Продукция»: серийный выпуск — основание для схемы 1с.'],
+    ['Требования: технический регламент',6,'Требования задаёт ТР ТС 004/2011 — строка «Соответствует требованиям».'],
+    ['Испытания образцов',7,'Испытания подтверждают протоколы испытательного центра с аттестатом аккредитации.'],
+    ['Анализ состояния производства',8,'Для схемы 1с обязателен анализ производства — это акт № 161020/11/С.'],
+    ['Инспекционный контроль',0,'Сертификат выдают до инспекционного контроля, поэтому по одному сертификату его не подтвердить: нужен реестр или сведения органа.'],
+    ['Срок действия',10,'Срок указан в последней строке: пять лет, как для серийной продукции.']],
+ B:[['Кто принял решение о соответствии',2,'Декларацию принимает сам заявитель — ООО «ЭЛЕКТРОРЕШЕНИЯ».'],
+    ['Орган по сертификации',0,'В схеме 1д орган по сертификации не участвует, поэтому его нет в декларации.'],
+    ['Испытания образцов и кто их проводил',6,'Протокол выдала производственная лаборатория изготовителя — схема 1д это допускает.'],
+    ['Требования: технический регламент',5,'Требования — ТР ЕАЭС 037/2016 об опасных веществах.'],
+    ['Объект',4,'Объект — кабель витая пара серий TERACOM, TERACOM PRO, TERACOM CS.'],
+    ['Регистрация и срок действия',8,'Декларация действует с даты регистрации — 02.02.2023 — по 01.02.2028.']]};
+
+/* задание 3: процедуры (дорожка: 0 — заявитель, 1 — орган по сертификации, 2 — лаборатория) */
+var LANES=[['person','заявитель'],['organ','орган по сертификации'],['flask','испытательная лаборатория']];
+var PROC={
+ p1:{steps:[['Подаёт заявку и документы',0],['Принимает решение по заявке',1],['Отбирает и идентифицирует образцы',1],['Испытывает образцы, оформляет протокол',2],['Анализирует состояние производства',1],['Принимает решение, выдаёт сертификат',1],['Маркирует продукцию единым знаком',0],['Проводит инспекционный контроль',1]],swap:[[3,4]]},
+ p2:{steps:[['Формирует техническую документацию',0],['Обеспечивает производственный контроль',0],['Испытывает образцы, оформляет протокол',2],['Принимает декларацию о соответствии',0],['Подаёт декларацию на регистрацию в реестр',0],['Маркирует продукцию единым знаком',0]],swap:[[0,1]]}};
+
+/* задание 4: приёмка оборудования для серверной */
+var ITEMS=[['Удлинитель EKF UBA-LUX-503-TC: 5 розеток, USB, 16 А','A',1],['Кабель витая пара EKF TERACOM','B',0],['Конвертер протоколов EKF mccb-AV-CM-av','C',0],['Таймер EKF te-80 для вентиляции серверной','D',1]];
+var DEC=['Принять','Запросить действующий документ','Уточнить модель'];
+
+/* ---------- состояние ---------- */
+var KEY='pr_skhemy_ekf_v1',S;
+function fresh(){return {t1:{A:{},B:{}},t1n:{A:0,B:0},t1p:{A:0,B:0},t2:{},t2n:0,t2p:0,t3:{p1:{ord:shuffle([0,1,2,3,4,5,6,7]),ln:{}},p2:{ord:shuffle([0,1,2,3,4,5]),ln:{}}},t3n:{p1:0,p2:0},t3p:{p1:0,p2:0},t4:{},t4n:0,t4p:0}}
+try{S=JSON.parse(window.localStorage.getItem(KEY)||'null')}catch(e){S=null}
+if(!S||!S.t3)S=fresh();
+function save(){try{window.localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+var MAXP={t1A:14,t1B:12,t2:12,t3p1:8,t3p2:6,t4:8};
+function total(){return S.t1p.A+S.t1p.B+S.t2p+S.t3p.p1+S.t3p.p2+S.t4p}
+function upScore(){$('#score').textContent=total()+' из 60'}
+
+var TODAY=new Date();TODAY.setHours(0,0,0,0);
+function pd(s){var m=/^(\d{2})\.(\d{2})\.(\d{4})$/.exec((s||'').trim());if(!m)return null;var d=new Date(+m[3],+m[2]-1,+m[1]);return d.getDate()===+m[1]?d:null}
+function fd(d){return ('0'+d.getDate()).slice(-2)+'.'+('0'+(d.getMonth()+1)).slice(-2)+'.'+d.getFullYear()}
+function valid(k){return pd(DOCS[k].b)>=TODAY}
+
+/* ---------- слайды ---------- */
+var STN=['Ситуация','Доказательства в документах','Сроки действия','Процедуры 1с и 1д','Решение о приёмке','Итог'];
+var SL=[];
+function th(t,id){return '<div class="th"><h2>'+t+'</h2>'+(id?'<button type="button" class="nb chk" id="'+id+'">Проверить</button>':'')+'</div>'}
+SL.push({st:0,html:th('Учебная ситуация')+'<div class="intro"><div class="intro-l"><p class="sit">Колледж закупает оборудование и материалы для работы информационной системы. Поставщик передал сертификаты и декларации. Ваша задача — понять, какой документ относится к каждому изделию и действителен ли он.</p><p class="sit">Вы — специалист по информационным системам. До приёмки документов проверьте сведения о продукции, требования, испытания и сроки действия. Настраивать оборудование не нужно.</p></div><div class="kit"><p class="kit-h">Комплект документов</p>'+['A','B','C','D'].map(function(k){return '<div class="kd'+(DOCS[k].kind==='c'?'':' d')+'"><b class="l">'+LET[k]+'</b><p>'+DOCS[k].s.charAt(0).toUpperCase()+DOCS[k].s.slice(1)+'</p></div>'}).join('')+'</div></div>'});
+SL.push({st:0,html:th('Порядок работы')+'<ol class="route">'+['Найдите в сертификате и декларации доказательства схем 1с и 1д.','Перенесите сроки действия и определите статус документов на сегодня.','Соберите процедуры по схемам 1с и 1д: порядок шагов и исполнители.','Примите решение о приёмке каждого изделия.','Скопируйте результаты в отчёт второго этапа в Word.'].map(function(s,i){return '<li><span class="pn">'+(i+1)+'</span>'+s+'</li>'}).join('')+'</ol><p class="fb mid">Это учебные выписки. Проверяйте содержание каждой строки, а не угадывайте по названию документа. В каждом задании — до трёх проверок; засчитывается лучший результат.</p>'});
+['A','B'].forEach(function(k){SL.push({st:1,t1:k,html:th('Задание 1'+(k==='A'?'а. Схема 1с: сертификат А':'б. Схема 1д: декларация Б'),'c1'+k)+'<p class="lead">Сначала выберите номер элемента справа. Затем нажмите строку документа слева, где есть подтверждение. Если сведений нет, нажмите «В документе нет».</p><div class="t1"><div class="doc"><p class="doc-h">Выписка из документа '+LET[k]+'</p><ol class="doc-l">'+DOCS[k].lines.map(function(l,i){return '<li><button type="button" data-ln="'+(i+1)+'"><span class="n">'+(i+1)+'</span><span>'+l+'</span></button></li>'}).join('')+'</ol></div><div class="side"><div class="chips" role="group" aria-label="Элементы схемы">'+EL[k].map(function(e,i){return '<button type="button" class="el" data-el="'+i+'" aria-label="'+e[0]+'">'+(i+1)+'</button>'}).join('')+'</div><div class="card"><p class="card-k"></p><p class="card-n"></p><p class="card-v"></p><p class="card-h"></p></div><div class="card-b"><button type="button" class="nb ghost" data-pe="1" aria-label="Предыдущий элемент">◀</button><button type="button" class="nb ghost none" data-none="1">В документе нет</button><button type="button" class="nb ghost" data-ne="1" aria-label="Следующий элемент">▶</button></div></div></div>'})});
+[['A','B'],['C','D']].forEach(function(pair,j){SL.push({st:2,html:th('Задание 2'+(j?'б':'а')+'. Сроки действия · сегодня '+fd(TODAY),j?'c2':'')+'<p class="lead">Начало — дата выдачи или регистрации, окончание — последний день действия.</p><div class="t2">'+pair.map(function(k){return '<div class="dr'+(DOCS[k].kind==='c'?'':' d')+'"><p class="dr-q">'+DOCS[k].src+'</p><div class="dr-c" data-doc="'+k+'"><label for="a'+k+'">с</label><input class="dt" id="a'+k+'" data-f="a" inputmode="numeric" placeholder="дд.мм.гггг" maxlength="10" autocomplete="off"><label for="b'+k+'">по</label><input class="dt" id="b'+k+'" data-f="b" inputmode="numeric" placeholder="дд.мм.гггг" maxlength="10" autocomplete="off"><div class="tg" role="group" aria-label="Статус на сегодня"><button type="button" data-s="1">Действует</button><button type="button" data-s="0">Срок истёк</button></div></div></div>'}).join('')+'</div>'+(j?'<p class="fb" aria-live="polite"></p>':'<p class="fb mid">Кнопка «Проверить» — на следующем слайде, вместе с документами В и Г.</p>')})});
+SL.push({st:2,html:th('Шкала сроков: документы на линии времени')+'<p class="lead">Отрезки строятся по введённым вами датам. Красная линия — сегодняшний день.</p><div class="tl" id="tl"></div>'});
+[['p1','Задание 3а. Шаги и исполнители: схема 1с'],['p2','Задание 3б. Шаги и исполнители: схема 1д']].forEach(function(p){SL.push({st:3,t3:p[0],html:th(p[1],'c3'+p[0])+'<p class="legend">'+LANES.map(function(l,i){return '<span><span class="ic L'+i+'">'+ICO[l[0]]+'</span>'+l[1]+'</span>'}).join('')+'</p><p class="fb t3fb" aria-live="polite"></p><ol class="seq" data-p="'+p[0]+'"></ol>'})});
+[[0,1],[2,3]].forEach(function(pr,j){SL.push({st:4,html:th('Задание 4'+(j?'б':'а')+'. Решение о приёмке',j?'c4':'')+'<p class="lead">Выберите документ из комплекта и решение на сегодняшний день.</p><div class="t4">'+pr.map(function(i){var it=ITEMS[i];return '<div class="pr" data-i="'+i+'"><div class="pr-a"><p>'+(i+1)+'. '+it[0]+'</p><div class="ch docs" role="group" aria-label="Документ">'+['A','B','C','D'].map(function(k){return '<button type="button" data-d="'+k+'">'+LET[k]+'</button>'}).join('')+'</div></div><div class="pr-b"><div class="ch dec" role="group" aria-label="Решение">'+DEC.map(function(d,j){return '<button type="button" data-c="'+j+'">'+d+'</button>'}).join('')+'</div></div></div>'}).join('')+'</div>'+(j?'<p class="fb" aria-live="polite"></p>':'<p class="fb mid">Кнопка «Проверить» — на следующем слайде, вместе с изделиями 3 и 4.</p>')})});
+SL.push({st:5,html:th('Итог первого этапа')+'<div class="res"><div class="rc" id="rc"></div><div class="rx"><textarea id="rtext" readonly aria-label="Результаты для отчёта"></textarea><div class="rx-b"><button type="button" class="nb" id="copy">Скопировать результаты</button><button type="button" class="nb ghost" id="reset">Начать заново</button></div><p class="fb" id="copyfb" aria-live="polite"></p></div></div>'});
+
+var track=$('#track');
+track.innerHTML=SL.map(function(s,i){return '<section class="sl" data-st="'+s.st+'" id="s'+i+'">'+s.html+'</section>'}).join('');
+var sls=$$('.sl',track),N=sls.length,cur=0;
+function fb(sec,t,c){var f=$('.fb',sec);f.className='fb '+(c||'');f.textContent=t}
+function att(n){return n>=3?'Попытки закончились':'Проверить ('+(3-n)+')'}
+
+/* ---------- задание 1 ---------- */
+var act={A:0,B:0};
+var H1={A:{},B:{}};
+function draw1(k){var sec=sls[SL.findIndex(function(s){return s.t1===k})],st=S.t1[k],done=S.t1n[k]>=3,a=act[k],v=st[a];
+  $$('.el',sec).forEach(function(b,i){b.classList.toggle('on',i===a);b.classList.toggle('set',st[i]!=null)});
+  $('.card-k',sec).textContent='Элемент '+(a+1)+' из '+EL[k].length;$('.card-n',sec).textContent=EL[k][a][0];
+  $('.card-v',sec).textContent=v==null?'Строка не выбрана':v===0?'Отмечено: в документе нет':'Доказательство: строка '+v;
+  $('.card-h',sec).textContent=H1[k][a]||'';
+  $$('.doc-l button',sec).forEach(function(b){b.classList.toggle('hit',st[act[k]]===+b.dataset.ln)});
+  var c=$('#c1'+k);c.textContent=att(S.t1n[k]);c.disabled=done}
+function mark1(k,show){var sec=sls[SL.findIndex(function(s){return s.t1===k})];if(!show)H1[k]={};$$('.el',sec).forEach(function(b,i){b.classList.remove('good','badx');if(show&&S.t1[k][i]!=null)b.classList.add(S.t1[k][i]===EL[k][i][1]?'good':'badx')})}
+['A','B'].forEach(function(k){var sec=sls[SL.findIndex(function(s){return s.t1===k})];
+  $$('.el',sec).forEach(function(b){b.addEventListener('click',function(){act[k]=+b.dataset.el;mark1(k,false);draw1(k)})});
+  function setv(v){if(S.t1n[k]>=3)return;S.t1[k][act[k]]=v;save();mark1(k,false);draw1(k);var nx=EL[k].findIndex(function(e,i){return S.t1[k][i]==null});setTimeout(function(){if(nx>=0){act[k]=nx;draw1(k)}},450)}
+  $('[data-pe]',sec).addEventListener('click',function(){act[k]=(act[k]+EL[k].length-1)%EL[k].length;draw1(k)});
+  $('[data-ne]',sec).addEventListener('click',function(){act[k]=(act[k]+1)%EL[k].length;draw1(k)});
+  $$('.doc-l button',sec).forEach(function(b){b.addEventListener('click',function(){setv(+b.dataset.ln)})});
+  $('[data-none]',sec).addEventListener('click',function(){setv(0)});
+  $('#c1'+k).addEventListener('click',function(){var st=S.t1[k],E=EL[k],ok=0,miss=[];
+    var ca=$('.card-h',sec);
+    if(Object.keys(st).length<E.length){ca.className='card-h mid';ca.textContent='Свяжите со строками документа все '+E.length+' элементов.';return}
+    S.t1n[k]++;H1[k]={};E.forEach(function(e,i){if(st[i]===e[1]){ok++;H1[k][i]='Верно. '+e[2]}else{miss.push(i);H1[k][i]=(S.t1n[k]>=3?'Правильно: '+(e[1]?'строка '+e[1]:'в документе нет')+'. ':'Неверно. ')+e[2]}});
+    S.t1p[k]=Math.max(S.t1p[k],ok*2);save();upScore();mark1(k,true);rail();
+    act[k]=miss.length?miss[0]:0;draw1(k);$('.card-k',sec).textContent='Верно '+ok+' из '+E.length+' · элемент '+(act[k]+1);ca.className='card-h '+(st[act[k]]===E[act[k]][1]?'ok':'bad')})});
+
+/* ---------- задание 2 ---------- */
+function mask(v){v=v.replace(/\D/g,'').slice(0,8);return v.length>4?v.slice(0,2)+'.'+v.slice(2,4)+'.'+v.slice(4):v.length>2?v.slice(0,2)+'.'+v.slice(2):v}
+$$('.dr-c').forEach(function(r){var k=r.dataset.doc,st=S.t2[k]||(S.t2[k]={});
+  $$('.dt',r).forEach(function(inp){inp.value=st[inp.dataset.f]||'';inp.addEventListener('input',function(){inp.value=mask(inp.value);st[inp.dataset.f]=inp.value;inp.classList.remove('good','badx');save();drawTL()})});
+  $$('.tg button',r).forEach(function(b){b.classList.toggle('sel',st.s===+b.dataset.s);b.addEventListener('click',function(){if(S.t2n>=3)return;st.s=+b.dataset.s;$$('.tg button',r).forEach(function(x){x.classList.remove('good','badx');x.classList.toggle('sel',x===b)});save()})})});
+function check2(){var sec=sls[SL.findIndex(function(s){return /Задание 2б/.test(s.html)})],ok=0,miss=0;
+  var all=['A','B','C','D'].every(function(k){var s=S.t2[k]||{};return s.a&&s.b&&s.s!=null});
+  if(!all){fb(sec,'Заполните даты и статус для всех четырёх документов (в том числе на предыдущем слайде).','mid');return}
+  S.t2n++;['A','B','C','D'].forEach(function(k){var s=S.t2[k],r=$('.dr-c[data-doc="'+k+'"]');
+    ['a','b'].forEach(function(f){var g=s[f]===DOCS[k][f];if(g)ok++;else miss++;$('[data-f="'+f+'"]',r).classList.add(g?'good':'badx')});
+    var gs=s.s===(valid(k)?1:0);if(gs)ok++;$$('.tg button',r).forEach(function(b){if(+b.dataset.s===s.s)b.classList.add(gs?'good':'badx')})});
+  S.t2p=Math.max(S.t2p,ok);save();upScore();rail();$('#c2').textContent=att(S.t2n);$('#c2').disabled=S.t2n>=3;
+  fb(sec,ok===12?'Всё верно. Посмотрите шкалу сроков на следующем слайде.':'Верно '+ok+' из 12. Начало действия — дата выдачи или регистрации, а не дата протокола; окончание — дата «по … включительно», а не срок аттестата лаборатории.',ok===12?'ok':ok>=9?'mid':'bad')}
+$('#c2').addEventListener('click',check2);
+function drawTL(){var Y0=2020,Y1=2029,X0=80,X1=1150,x=function(d){return X0+(d-new Date(Y0,0,1))/(new Date(Y1,0,1)-new Date(Y0,0,1))*(X1-X0)},s='';
+  for(var y=Y0;y<=Y1;y++){var xx=x(new Date(y,0,1));s+='<path d="M'+xx+' 30V350" stroke="#D9D6CA" stroke-width="2"/><text x="'+xx+'" y="384" text-anchor="middle" font-size="30" fill="#55597A">'+y+'</text>'}
+  ['A','B','C','D'].forEach(function(k,i){var st=S.t2[k]||{},a=pd(st.a),b=pd(st.b),yy=40+i*78,c=DOCS[k].kind==='c'?'#3730A3':'#1F8A5B';
+    s+='<text x="20" y="'+(yy+38)+'" font-size="30" font-weight="700" fill="#2A2560">'+LET[k]+'</text>';
+    if(a&&b&&b>a){var xa=Math.max(X0,x(a)),xb=Math.min(X1,x(b));s+='<rect x="'+xa+'" y="'+yy+'" width="'+Math.max(4,xb-xa)+'" height="54" rx="10" fill="'+c+'" opacity="'+(b<TODAY?'.45':'1')+'"/><text x="'+(xa+12)+'" y="'+(yy+38)+'" font-size="30" font-weight="700" fill="#fff">'+st.a+' — '+st.b+'</text>'}
+    else s+='<text x="'+X0+'" y="'+(yy+38)+'" font-size="30" fill="#55597A">даты не введены</text>'});
+  var tx=x(TODAY);s+='<path d="M'+tx+' 20V356" stroke="#B3261E" stroke-width="5"/><text x="'+(tx-8)+'" y="20" text-anchor="end" font-size="30" font-weight="700" fill="#B3261E">сегодня</text>';
+  $('#tl').innerHTML='<svg viewBox="0 0 1212 400" role="img" aria-label="Шкала сроков действия документов">'+s+'</svg>'}
+
+/* ---------- задание 3 ---------- */
+function draw3(p){var ol=$('.seq[data-p="'+p+'"]'),st=S.t3[p],P=PROC[p],done=S.t3n[p]>=3;
+  ol.innerHTML=st.ord.map(function(si,i){var l=st.ln[si];return '<li class="'+(l!=null?'l'+l:'')+'" data-si="'+si+'"><button type="button" class="mv" data-up="'+i+'" aria-label="Выше"'+(i===0||done?' disabled':'')+'>▲</button><button type="button" class="mv" data-dn="'+i+'" aria-label="Ниже"'+(i===st.ord.length-1||done?' disabled':'')+'>▼</button><span class="sn">'+(i+1)+'</span><span class="st">'+P.steps[si][0]+'</span>'+LANES.map(function(L,j){return '<button type="button" class="ln L'+j+'x'+(l===j?' sel':'')+'" data-ln="'+j+'" aria-label="'+L[1]+'" title="'+L[1]+'"'+(done?' disabled':'')+'>'+ICO[L[0]]+'</button>'}).join('')+'</li>'}).join('');
+  $$('[data-up]',ol).forEach(function(b){b.addEventListener('click',function(){var i=+b.dataset.up,o=st.ord;o.splice(i-1,0,o.splice(i,1)[0]);save();draw3(p);var f=$$('.mv',ol)[(i-1)*2];if(f&&!f.disabled)f.focus()})});
+  $$('[data-dn]',ol).forEach(function(b){b.addEventListener('click',function(){var i=+b.dataset.dn,o=st.ord;o.splice(i+1,0,o.splice(i,1)[0]);save();draw3(p);var f=$$('.mv',ol)[(i+1)*2+1];if(f&&!f.disabled)f.focus()})});
+  $$('.ln',ol).forEach(function(b){b.addEventListener('click',function(){st.ln[+b.closest('li').dataset.si]=+b.dataset.ln;save();draw3(p)})});
+  var c=$('#c3'+p);c.textContent=att(S.t3n[p]);c.disabled=done}
+function posOK(p,ord,i){var P=PROC[p],si=ord[i];if(si===i)return true;return P.swap.some(function(w){return (si===w[0]&&i===w[1]&&ord[w[0]]===w[1])||(si===w[1]&&i===w[0]&&ord[w[1]]===w[0])})}
+['p1','p2'].forEach(function(p){$('#c3'+p).addEventListener('click',function(){var st=S.t3[p],P=PROC[p],sec=$('.seq[data-p="'+p+'"]').closest('.sl'),ok=0;
+  if(Object.keys(st.ln).length<P.steps.length){fb(sec,'Выберите исполнителя для каждого шага.','mid');$('.legend',sec).hidden=true;return}
+  S.t3n[p]++;draw3(p);var lis=$$('li',$('.seq[data-p="'+p+'"]')),wrongLane=0,wrongPos=0;
+  st.ord.forEach(function(si,i){var g1=posOK(p,st.ord,i),g2=st.ln[si]===P.steps[si][1];if(g1&&g2)ok++;if(!g1)wrongPos++;if(!g2)wrongLane++;lis[i].classList.add(g1&&g2?'good':'badx')});
+  S.t3p[p]=Math.max(S.t3p[p],ok);save();upScore();rail();
+  fb(sec,ok===P.steps.length?(p==='p1'?'Всё верно. В сертификате А акт анализа производства составлен раньше протоколов: шаги 4 и 5 можно менять местами.':'Всё верно. В схеме 1д орган по сертификации не участвует.'):'Верно '+ok+' из '+P.steps.length+'. Ошибок в порядке — '+wrongPos+', в исполнителе — '+wrongLane+'. '+(p==='p1'?'Решения и контроль — функции органа, испытания — лаборатории.':'В схеме 1д всё, кроме испытаний, делает заявитель.'),ok===P.steps.length?'ok':ok>=P.steps.length-2?'mid':'bad');$('.legend',sec).hidden=true})});
+
+/* ---------- задание 4 ---------- */
+$$('.pr').forEach(function(r){var i=+r.dataset.i,st=S.t4[i]||(S.t4[i]={});
+  function paint(){$$('[data-d]',r).forEach(function(b){b.classList.toggle('sel',st.d===b.dataset.d)});$$('[data-c]',r).forEach(function(b){b.classList.toggle('sel',st.c===+b.dataset.c)})}
+  $$('[data-d]',r).forEach(function(b){b.setAttribute('aria-label','Документ '+LET[b.dataset.d]);b.addEventListener('click',function(){if(S.t4n>=3)return;st.d=b.dataset.d;$$('button',r).forEach(function(x){x.classList.remove('good','badx')});save();paint()})});
+  $$('[data-c]',r).forEach(function(b){b.addEventListener('click',function(){if(S.t4n>=3)return;st.c=+b.dataset.c;$$('button',r).forEach(function(x){x.classList.remove('good','badx')});save();paint()})});paint()});
+$('#c4').addEventListener('click',function(){var sec=$('#c4').closest('.sl'),ok=0,tip=[];
+  if(!ITEMS.every(function(it,i){var s=S.t4[i];return s&&s.d&&s.c!=null})){fb(sec,'Выберите документ и решение для всех четырёх изделий.','mid');return}
+  S.t4n++;ITEMS.forEach(function(it,i){var s=S.t4[i],r=$('.pr[data-i="'+i+'"]'),need=valid(it[1])?0:1,g1=s.d===it[1],g2=s.c===need;
+    if(g1)ok++;if(g2)ok++;if(!g1)tip.push('изделие '+(i+1)+': документ указан в строке «Продукция»');else if(!g2)tip.push('изделие '+(i+1)+': сравните окончание срока документа '+LET[it[1]]+' с сегодняшней датой');
+    $('[data-d="'+s.d+'"]',r).classList.add(g1?'good':'badx');$('[data-c="'+s.c+'"]',r).classList.add(g2?'good':'badx')});
+  S.t4p=Math.max(S.t4p,ok);save();upScore();rail();$('#c4').textContent=att(S.t4n);$('#c4').disabled=S.t4n>=3;
+  fb(sec,ok===8?'Всё верно. Вопрос о точной модели UBA-LUX-503-TC вы разберёте во втором этапе.':'Верно '+ok+' из 8. Подсказка: '+tip.join('; ')+'.',ok===8?'ok':ok>=6?'mid':'bad')});
+
+/* ---------- итог ---------- */
+function summary(){var L=[];L.push('Практическая работа «Схемы сертификации: проверка документов о соответствии». Этап 1.');L.push('Дата выполнения: '+fd(TODAY)+'. Баллы: '+total()+' из 60.');
+  L.push('');L.push('Задание 1. Доказательства схем: сертификат А — '+S.t1p.A+' из 14; декларация Б — '+S.t1p.B+' из 12.');
+  ['A','B'].forEach(function(k){L.push(LET[k]+': '+EL[k].map(function(e,i){var v=S.t1[k][i];return e[0]+' — '+(v==null?'не указано':v===0?'в документе нет':'строка '+v)}).join('; ')+'.')});
+  L.push('');L.push('Задание 2. Сроки действия ('+S.t2p+' из 12):');['A','B','C','D'].forEach(function(k){var s=S.t2[k]||{};L.push(LET[k]+' ('+DOCS[k].s+'): с '+(s.a||'—')+' по '+(s.b||'—')+'; статус на '+fd(TODAY)+': '+(s.s===1?'действует':s.s===0?'срок истёк':'не указан')+'.')});
+  L.push('');L.push('Задание 3. Процедуры: схема 1с — '+S.t3p.p1+' из 8; схема 1д — '+S.t3p.p2+' из 6.');
+  ['p1','p2'].forEach(function(p){L.push((p==='p1'?'1с: ':'1д: ')+S.t3[p].ord.map(function(si,i){var l=S.t3[p].ln[si];return (i+1)+') '+PROC[p].steps[si][0]+' ['+(l==null?'?':LANES[l][1])+']'}).join('; ')+'.')});
+  L.push('');L.push('Задание 4. Решение о приёмке ('+S.t4p+' из 8):');ITEMS.forEach(function(it,i){var s=S.t4[i]||{};L.push((i+1)+'. '+it[0]+': документ '+(s.d?LET[s.d]:'—')+'; решение — '+(s.c!=null?DEC[s.c].toLowerCase():'не выбрано')+'.')});
+  return L.join('\n')}
+function drawRes(){var R=[['1а. Доказательства 1с',S.t1p.A,14],['1б. Доказательства 1д',S.t1p.B,12],['2. Сроки действия',S.t2p,12],['3а. Процедура 1с',S.t3p.p1,8],['3б. Процедура 1д',S.t3p.p2,6],['4. Приёмка',S.t4p,8]];
+  $('#rc').innerHTML=R.map(function(r){return '<p class="rci"><span>'+r[0]+'</span><b>'+r[1]+' / '+r[2]+'</b></p>'}).join('')+'<p class="rci tot"><span>Итого</span><b>'+total()+' / 60</b></p>';$('#rtext').value=summary()}
+$('#copy').addEventListener('click',function(){var t=summary(),done=function(ok){$('#copyfb').className='fb '+(ok?'ok':'mid');$('#copyfb').textContent=ok?'Результаты скопированы. Вставьте их в отчёт второго этапа.':'Выделите текст в поле и скопируйте его вручную.'};
+  function legacy(){var ta=$('#rtext');ta.focus();ta.select();var ok=false;try{ok=document.execCommand('copy')}catch(e){}done(ok)}
+  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(function(){done(true)},legacy)}else legacy()});
+$('#reset').addEventListener('click',function(){if($('#reset').dataset.sure!=='1'){$('#reset').dataset.sure='1';$('#reset').textContent='Нажмите ещё раз для сброса';return}S=fresh();save();window.location.reload()});
+
+/* ---------- масштаб и перелистывание ---------- */
+var stage=$('#stage'),W0=1280,H0=720;
+function fit(){var w=window.innerWidth,h=window.innerHeight;
+  if(w<760){document.documentElement.classList.add('free');stage.style.transform='';stage.style.left='0';stage.style.top='0';stage.style.height=h+'px';place(true);return}
+  document.documentElement.classList.remove('free');stage.style.height='';var k=Math.min(w/W0,h/H0);stage.style.transform='scale('+k+')';stage.style.left=Math.max(0,(w-W0*k)/2)+'px';stage.style.top=Math.max(0,(h-H0*k)/2)+'px';place(true)}
+function firstOf(st){for(var i=0;i<N;i++)if(+sls[i].dataset.st===st)return i;return 0}
+function stDone(s){return s===1?S.t1n.A&&S.t1n.B:s===2?S.t2n:s===3?S.t3n.p1&&S.t3n.p2:s===4?S.t4n:0}
+function rail(){$('#rail').innerHTML=[1,2,3,4].map(function(s){var on=+sls[cur].dataset.st===s,d=stDone(s);return '<li><button type="button" data-st="'+s+'" class="'+(on?'on ':'')+(d?'q':'')+'" aria-label="Задание '+s+': '+STN[s]+(d?', проверено':'')+'"'+(on?' aria-current="step"':'')+'>'+(d?'✓':s)+'</button></li>'}).join('');
+  $$('#rail button').forEach(function(b){b.addEventListener('click',function(){go(firstOf(+b.dataset.st))})})}
+function place(instant){if(document.documentElement.classList.contains('free')){track.style.transform='';sls.forEach(function(s,i){s.hidden=i!==cur});return}
+  sls.forEach(function(s){s.hidden=false});if(instant)track.classList.add('noanim');track.style.transform='translateX('+(-cur*W0)+'px)';if(instant){void track.offsetWidth;track.classList.remove('noanim')}}
+function go(i){if(i<0||i>=N)return;cur=i;var s=sls[i],st=+s.dataset.st;
+  sls.forEach(function(x,k){if(k===i){x.removeAttribute('inert');x.removeAttribute('aria-hidden')}else{x.setAttribute('inert','');x.setAttribute('aria-hidden','true')}});
+  if(st===2)drawTL();if(st===5)drawRes();
+  $('#stK').textContent=st===0?'Практическая работа':st===5?'Итог':'Задание '+st+' из 4';$('#stN').textContent=st===0?'Проверка документов о соответствии':STN[st];
+  $('#cnt').textContent='Слайд '+(i+1)+' из '+N;$('#prev').disabled=i===0;$('#next').disabled=i===N-1;place(false);rail();s.scrollTop=0}
+$('#prev').addEventListener('click',function(){go(cur-1)});$('#next').addEventListener('click',function(){go(cur+1)});
+document.addEventListener('keydown',function(e){var tg=e.target&&e.target.tagName;if(tg==='INPUT'||tg==='TEXTAREA')return;
+  if(e.key==='PageDown'){e.preventDefault();go(cur+1)}else if(e.key==='PageUp'){e.preventDefault();go(cur-1)}});
+window.addEventListener('resize',fit);
+['A','B'].forEach(function(k){mark1(k,false);draw1(k)});draw3('p1');draw3('p2');
+$('#c2').textContent=att(S.t2n);$('#c2').disabled=S.t2n>=3;$('#c4').textContent=att(S.t4n);$('#c4').disabled=S.t4n>=3;
+upScore();window.PR={go:go,n:N,S:function(){return S},DOCS:DOCS,EL:EL,PROC:PROC,ITEMS:ITEMS,valid:valid};
+fit();go(0);
+})();
+
+</script>
+</body>
+</html>
